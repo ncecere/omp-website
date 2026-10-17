@@ -1,0 +1,34 @@
+{
+  "my-gateways": {
+    "alt": "My gateways in Open MCP Portal: the gateways the signed-in person can use, each with its URL on portal.example.com, why they have access, and Connect snippets for Claude Code, VS Code, Cursor and curl.",
+    "caption": "Every gateway has one URL. Interactive clients sign in in the browser; scripts and clients that can't sign in use an API key."
+  },
+  "catalog": {
+    "alt": "Catalog: published MCP servers from Example Corp's teams, each with its team, health and counts of approved tools, prompts and resources, and badges for servers that need a sign-in or record call contents.",
+    "caption": "The catalog lists only published servers, and only the capabilities whose current definition was approved."
+  },
+  "server-sign-in": {
+    "alt": "Team › MCP servers › Add server with Authentication set to OAuth: each person signs in, after Detect sign-in: the authorization server, scopes supported, S256 supported and how the portal registers its client.",
+    "caption": "Detect sign-in reads an OAuth-protected server's metadata, such as GitHub's hosted MCP server, and shows what is still needed."
+  },
+  "gateway-capabilities": {
+    "alt": "A team gateway's Capabilities tab, Choose capabilities: tools, prompts and resources from the team's own servers and the catalog, searchable by name, title or server, some with a minimum team role.",
+    "caption": "A gateway exposes only what was selected for it, named server__tool so tools from different servers never clash."
+  },
+  "oauth-consent": {
+    "alt": "The consent page: Cursor wants to use Support tools as you, naming the host that vouches for the app, the gateway, and where the browser goes back to, with Allow and Deny.",
+    "caption": "Consent is remembered per person, app and gateway. Apps your platform admins trust skip this page; people still sign in."
+  },
+  "connect-confirm": {
+    "alt": "Connect your GitHub account: the request (signed in as, the tool that asked, the gateway, the provider, what is connected now) and each scope GitHub will ask for, marked New or Already allowed.",
+    "caption": "A tool that needs a person's own account answers with a one-time link to this page. The token stays in the portal; the AI client never sees it."
+  },
+  "admin-usage": {
+    "alt": "Admin › Usage: totals for the range, error rate and p50 and p95 latency, calls per day, and a breakdown by gateway, server, capability, team or kind of caller.",
+    "caption": "Usage is rolled up hourly and kept for ranges of up to 90 days. There is no grouping by person."
+  },
+  "call-detail": {
+    "alt": "A call page: the tool called, who called it and with which client, the gateway and server, the outcome, time, size and request ID, and View contents for a call whose contents were recorded.",
+    "caption": "Call metadata is always kept. Arguments and results only where a team turned recording on: redacted, and every view audited."
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "_comment": "The Open MCP Portal mark (inner SVG markup on the 64 grid), written by `npm run og` from ../omp-assets/logo/<source>/: `svg` is mark-small.svg, the drawing for 20 to 47 px, used by components/logo.tsx (28 px, header and footer); `svgRegular` is mark.svg, the drawing for 48 px and up, used by scripts/og-image.mjs for the Open Graph card. `placeholder: true` means a neutral stand-in drawn before the logo existed. If the logo changes, run `npm run og` again and commit.",
+  "placeholder": false,
+  "source": "keystone",
+  "viewBox": "0 0 64 64",
+  "svg": "<rect width=\"64\" height=\"64\" rx=\"14\" fill=\"#161a22\"/><path d=\"M12 33A20 20 0 0 1 24.18 14.59L26.51 21.77A12.5 12.5 0 0 0 19.5 33ZM39.82 14.59A20 20 0 0 1 52 33L44.5 33A12.5 12.5 0 0 0 37.49 21.77ZM12 33H19.5V53H12ZM44.5 33H52V53H44.5Z\" fill=\"#f7f8fa\"/><path d=\"M26.58 10.65A23 23 0 0 1 37.42 10.65L34.16 20.69A12.5 12.5 0 0 0 29.84 20.69Z\" fill=\"#2dd4bf\"/>",
+  "svgRegular": "<rect width=\"64\" height=\"64\" rx=\"14\" fill=\"#161a22\"/><path d=\"M12.5 33A19.5 19.5 0 0 1 24.88 14.85L26.79 21.09A13 13 0 0 0 19 33ZM39.12 14.85A19.5 19.5 0 0 1 51.5 33L45 33A13 13 0 0 0 37.21 21.09ZM12.5 33H19V53H12.5ZM45 33H51.5V53H45Z\" fill=\"#f7f8fa\"/><path d=\"M26.87 11.09A22.5 22.5 0 0 1 37.13 11.09L34.34 20.21A13 13 0 0 0 29.66 20.21Z\" fill=\"#2dd4bf\"/>"
+}
