@@ -29,8 +29,9 @@ export const site = {
   identityUrl: `${tree}/docs/upstream-identity.md`,
   mailExampleUrl: `${tree}/examples/mail-mcp/README.md`,
   websiteRepoUrl: "https://github.com/ncecere/omp-website",
-  // The example portal used in every snippet on the page.
-  exampleHost: "portal.example.com",
+  // The example portal used in every snippet on the page: the host the screenshots show
+  // (the Example Corp capture instance in omp-assets, and the docs' examples).
+  exampleHost: "mcp.example.com",
   // HTTP header names the portal sends to MCP servers. They are protocol
   // names, unchanged by the product's rename (internal/identity/identity.go);
   // check them against docs/upstream-identity.md when the product changes.

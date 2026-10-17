@@ -4,9 +4,9 @@ The landing page for [Open MCP Portal (OMP)](https://github.com/ncecere/open-mcp
 
 It's one long page plus a 404 page, with no pricing, sign-up, forms, cookies, tracking or third-party requests. The text describes Open MCP Portal **v0.1.0** (the current `main` of the product repository, not yet tagged; the repository was called `open-mcp-gateway` before the rename) and is checked against its `SPEC.md`, `docs/decisions.md`, `docs/status.md`, `docs/registry.md`, the "As built" sections of `docs/phase3-gateways.md` to `docs/phase7-upstream-oauth.md`, `docs/upstream-identity.md`, `docs/connect-clients.md`, `docs/deploy.md`, `examples/mail-mcp/README.md`, the `Makefile` and the screen names in `web/src`. Nothing on the page describes a feature that isn't built; planned work is named as planned in the project status card.
 
-`lib/site.ts` holds the version, the release day (`null` until the tag exists; set it when v0.1.0 is tagged, and the footer and sitemap show it), the repository links (they follow `main` until the tag; then point them at `blob/v0.1.0`), the example host (`portal.example.com`) and the HTTP header names the portal sends to MCP servers (`MCP-Gateway-Identity`, `MCP-Gateway-Provider`, `MCP-Gateway-Provider-Token`; protocol names that the product's rename kept).
+`lib/site.ts` holds the version, the release day (`null` until the tag exists; set it when v0.1.0 is tagged, and the footer and sitemap show it), the repository links (they follow `main` until the tag; then point them at `blob/v0.1.0`), the example host (`mcp.example.com`, the host the screenshots and the docs show) and the HTTP header names the portal sends to MCP servers (`MCP-Gateway-Identity`, `MCP-Gateway-Provider`, `MCP-Gateway-Provider-Token`; protocol names that the product's rename kept).
 
-**Naming.** The page leads with "Open MCP Portal" (title, hero, metadata) and uses "OMP" only as a short form after it. The text names no competing products (other MCP gateways, registries, tool platforms or API management products); the MCP clients the portal connects (Claude, Claude Code, VS Code, Cursor) and the services people sign in to (GitHub, Google, Microsoft Entra ID, Atlassian, Slack, GitLab) are named because they are what it connects to. Examples use generic names (`portal.example.com`, Example Corp, a `support` gateway). `scripts/postbuild.mjs` fails the build if a page uses a forbidden name or "OMP" before "Open MCP Portal".
+**Naming.** The page leads with "Open MCP Portal" (title, hero, metadata) and uses "OMP" only as a short form after it. The text names no competing products (other MCP gateways, registries, tool platforms or API management products); the MCP clients the portal connects (Claude, Claude Code, VS Code, Cursor) and the services people sign in to (GitHub, Google, Microsoft Entra ID, Atlassian, Slack, GitLab) are named because they are what it connects to. Examples use generic names (`mcp.example.com`, Example Corp, a `support` gateway). `scripts/postbuild.mjs` fails the build if a page uses a forbidden name or "OMP" before "Open MCP Portal".
 
 ## Stack
 
@@ -44,14 +44,14 @@ The logo's source, exports and usage rules live in `../omp-assets/logo/` (the ma
 
 ## Screenshots
 
-The page has 8 named screenshot slots in its web UI section, listed in `lib/slots.json` with their alt text and captions. A slot without an image shows a clearly marked placeholder with the expected file name. All 8 are placeholders until `../omp-assets/screenshots/` has captures.
+The page has 8 named screenshot slots in its web UI section, listed in `lib/slots.json` with their alt text and captions. A slot without an image shows a clearly marked placeholder with the expected file name. All 8 are filled from the Example Corp capture in `../omp-assets/screenshots/` (Open MCP Portal at commit `d039647`, 2026-10-17; `MANIFEST.md` there). Four slots name a docs file through `"file"` (`server-sign-in` → `add-server-detect`, `gateway-capabilities` → `gateway-capabilities-picker`, `call-detail` → `call-detail-payload`) or one of the website's own (`connect-confirm` → `connect-confirm-more-scopes`).
 
 ```sh
 npm run images   # copy the screenshots that exist into public/images as WebP, record their sizes
 npm run og       # rebuild the Open Graph card and icons
 ```
 
-Commit the results (`public/images/`, `lib/screenshots.json`, `public/og.png`, icons, `lib/mark.json`). Screenshots come from a fictional demo installation (Example Corp) in `../omp-assets/screenshots/`; set `SCREENSHOTS_DIR` to read from another directory. For each slot the script looks for `file` (or the slot's own name) as `.png`, `.webp` or `.jpg` and, if that's missing, the slot's `interimFile`, recording `"interim": true` in `lib/screenshots.json`. When the captures arrive, check each slot's alt text and caption against its image: they were written from the product's docs and source, before any capture existed.
+Commit the results (`public/images/`, `lib/screenshots.json`, `public/og.png`, icons, `lib/mark.json`). Screenshots come from a fictional demo installation (Example Corp) in `../omp-assets/screenshots/`; set `SCREENSHOTS_DIR` to read from another directory. For each slot the script looks for `file` (or the slot's own name) as `.png`, `.webp` or `.jpg` and, if that's missing, the slot's `interimFile`, recording `"interim": true` in `lib/screenshots.json`. After a retake, check each slot's alt text and caption against its image (they were last checked against the 2026-10-17 set).
 
 | Slot | Shows |
 |---|---|

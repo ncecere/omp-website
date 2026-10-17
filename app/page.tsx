@@ -416,7 +416,7 @@ function Features() {
               </>,
               <>
                 <Strong>No clashes:</Strong> tools are exposed as <code>server__tool</code>, and resources under{" "}
-                <code>omcp://server/</code>, so servers can use the same names.
+                <code>omp://server/</code>, so servers can use the same names.
               </>,
               <>
                 <Strong>Checked on every call:</Strong> removing someone from a team or a grant, turning a gateway off
@@ -613,7 +613,7 @@ const cursorSnippet = `{
 }`;
 
 const keySnippet = `curl -X POST ${gatewayUrl} \\
-  -H "Authorization: Bearer omcp_..." \\
+  -H "Authorization: Bearer omp_..." \\
   -H "Content-Type: application/json" \\
   -H "Accept: application/json, text/event-stream" \\
   -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'`;
@@ -636,7 +636,7 @@ function Connect() {
           <div className="min-w-0">
             <CodeBlock label="Scripts and agents: a personal or service account key">{keySnippet}</CodeBlock>
             <p className="mt-3 text-sm text-brand-muted">
-              Personal keys start with <code>omcp_</code>, service account keys with <code>omcp_sa_</code>. Both are
+              Personal keys start with <code>omp_</code>, service account keys with <code>omp_sa_</code>. Both are
               shown once. <TextLink href={site.connectUrl}>Connecting clients</TextLink>
             </p>
           </div>
@@ -648,7 +648,7 @@ function Connect() {
               items={[
                 <>It acts as you, on that gateway only: its token is refused by every other gateway.</>,
                 <>It sees the tools you may use there now. Lose access and the next request is refused.</>,
-                <>Access tokens last an hour; the app refreshes them, and signs in again after 30 days unused. A refresh token used twice ends the connection.</>,
+                <>Access tokens last an hour; the app refreshes them, and signs in again after 30 days unused. A refresh token reused after 30 seconds ends the connection.</>,
                 <>Claude (claude.ai and Claude Desktop) connects as a custom connector; for claude.ai the portal must be reachable from the internet.</>,
               ]}
             />
@@ -964,10 +964,14 @@ function OpenSource() {
             </h3>
             <div className="mt-4 space-y-3 leading-relaxed text-brand-muted">
               <p>
-                Everything on this page is built and tested against real PostgreSQL, with fake MCP servers and a fake
-                OAuth provider. It is pre-1.0 software: sign-in with real MCP clients, delegated credentials with a real
-                provider and the GitHub sign-in end to end still need their first full runs, so pilot it before you
-                depend on it.
+                Everything on this page is built and tested against real PostgreSQL. Real clients work: Claude Code and
+                pi have signed in to gateways over OAuth and called tools, and GitHub&apos;s hosted MCP server has run
+                end to end with each person&apos;s own GitHub sign-in.
+              </p>
+              <p>
+                It is pre-1.0 software and hasn&apos;t run in production. Not tried yet: delegated credentials with a
+                real Google or Microsoft provider (only a fake one so far), the CI workflow on GitHub&apos;s runners, and
+                a smoke test on a real Kubernetes cluster. Pilot it before you depend on it.
               </p>
               <p>
                 Not built yet: streaming responses through to the client (calls are buffered, up to 1 MiB), resource

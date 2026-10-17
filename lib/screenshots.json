@@ -1,1 +1,42 @@
-{}
+{
+  "my-gateways": {
+    "src": "/images/my-gateways.webp",
+    "width": 1440,
+    "height": 900
+  },
+  "catalog": {
+    "src": "/images/catalog.webp",
+    "width": 1440,
+    "height": 900
+  },
+  "server-sign-in": {
+    "src": "/images/server-sign-in.webp",
+    "width": 1440,
+    "height": 900
+  },
+  "gateway-capabilities": {
+    "src": "/images/gateway-capabilities.webp",
+    "width": 1440,
+    "height": 900
+  },
+  "oauth-consent": {
+    "src": "/images/oauth-consent.webp",
+    "width": 1440,
+    "height": 900
+  },
+  "connect-confirm": {
+    "src": "/images/connect-confirm.webp",
+    "width": 1440,
+    "height": 900
+  },
+  "admin-usage": {
+    "src": "/images/admin-usage.webp",
+    "width": 1440,
+    "height": 900
+  },
+  "call-detail": {
+    "src": "/images/call-detail.webp",
+    "width": 1440,
+    "height": 900
+  }
+}
