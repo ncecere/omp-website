@@ -19,10 +19,11 @@ import { ButtonLink, CheckList, CodeBlock, Eyebrow, Note, SectionHeading, Strong
 import { site } from "@/lib/site";
 
 /*
- * Every claim here is checked against Open MCP Portal v0.2.0
- * (github.com/ncecere/open-mcp-portal at the v0.2.0 tag; the repository was
- * called open-mcp-gateway until the rename): docs/releases/v0.2.0.md (the
- * "New in v0.2.0" section and the status card), docs/threat-model.md,
+ * Every claim here is checked against Open MCP Portal v0.2.1
+ * (github.com/ncecere/open-mcp-portal at the v0.2.1 tag; the repository was
+ * called open-mcp-gateway until the rename): docs/releases/v0.2.1.md (the
+ * v0.2.1 card and the status card), docs/releases/v0.2.0.md (the
+ * "New in v0.2.0" section), docs/threat-model.md,
  * docs/mcp-protocol.md, docs/admin-overview.md, docs/notifications.md,
  * docs/automation-tokens.md, SPEC.md, docs/decisions.md,
  * docs/status.md, docs/registry.md, the "As built" sections of
@@ -491,7 +492,7 @@ function Features() {
               </>,
               <>
                 <Strong>A link, not an error:</Strong> the first call answers with a one-time link (JSON-RPC{" "}
-                <code>-32042</code> for clients on earlier revisions; see New in {site.version} for 2026-07-28) to a
+                <code>-32042</code> for clients on earlier revisions; see New in {site.previousVersion} for 2026-07-28) to a
                 page that names the tool, the gateway and every scope. It works only for that person, once, for 10
                 minutes.
               </>,
@@ -594,18 +595,20 @@ function Features() {
 
 /* ------------------------------------------------------- New in v0.2.0 */
 
-// docs/releases/v0.2.0.md. Claims and limits are the release notes' own; the
-// "not yet tried" list is repeated in the project status card.
+// docs/releases/v0.2.0.md (this section describes that release, so it names
+// site.previousVersion, not site.version), plus one card for the small
+// release after it, docs/releases/v0.2.1.md. Claims and limits are the release
+// notes' own; the "not yet tried" list is repeated in the project status card.
 function NewInRelease() {
   return (
     <section id="new" aria-labelledby="new-title" className="scroll-mt-16 border-t border-brand-border bg-brand-surface-sunken py-20 sm:py-24">
       <div className="container-page">
-        <SectionHeading id="new-title" eyebrow={`New in ${site.version}`} title="The newest MCP revision, and what a pilot needs to run it">
+        <SectionHeading id="new-title" eyebrow={`New in ${site.previousVersion}`} title="The newest MCP revision, and what a pilot needs to run it">
           <p>
-            {site.version} adds support for the MCP 2026-07-28 revision, an admin overview, notifications and automation
+            {site.previousVersion} adds support for the MCP 2026-07-28 revision, an admin overview, notifications and automation
             tokens, and fixes the issues found in a security review of v0.1.0. Read the{" "}
-            <TextLink href={site.releaseNotesUrl}>release notes</TextLink> before you upgrade: it adds migrations, and
-            people consent once per server.
+            <TextLink href={site.previousReleaseNotesUrl}>release notes</TextLink> before you upgrade from v0.1.0: it adds
+            migrations, and people consent once per server.
           </p>
         </SectionHeading>
 
@@ -739,7 +742,7 @@ function NewInRelease() {
             title="Fixes from a published threat model"
             lead={
               <p>
-                A review of v0.1.0 found four issues, all fixed in {site.version}. The{" "}
+                A review of v0.1.0 found four issues, all fixed in {site.previousVersion}. The{" "}
                 <TextLink href={site.threatModelUrl}>threat model</TextLink> is written for security reviewers.
               </p>
             }
@@ -761,6 +764,48 @@ function NewInRelease() {
               <>
                 Upgrading: everyone consents once per server, and scripts that approve must send the digest they
                 reviewed. A person&apos;s provider token still carries every scope they granted that provider.
+              </>
+            }
+          />
+
+          {/* docs/releases/v0.2.1.md "What changed" and "Known limitations"; docs/registry.md, docs/deploy.md */}
+          <FeatureCard
+            id="new-patch"
+            icon={<Fingerprint className="size-5" />}
+            eyebrow={`Then ${site.version}`}
+            title="A small release: a truer Test, a registration cap, a smoke test"
+            wide
+            lead={
+              <p>
+                {site.version} followed {site.previousVersion} the same day. It has no migration and nothing you must change
+                to upgrade; read its <TextLink href={site.releaseNotesUrl}>release notes</TextLink>.
+              </p>
+            }
+            bullets={[
+              <>
+                <Strong>Test connection exercises the identity token.</Strong> A manual Test sends the editor&apos;s identity
+                token when <Strong>Send identity token</Strong> is on, and fails with a clear message if the server
+                refuses it with <code>401</code> or <code>403</code> but accepts the request without it. Scheduled checks
+                and refresh send none.
+              </>,
+              <>
+                <Strong>A cap on open client registration.</Strong> <code>OAUTH_MAX_REGISTERED_CLIENTS</code> (default 1000,{" "}
+                <code>0</code> for no cap) bounds the clients that registered themselves and were used in the last 30 days;
+                over it, registration answers <code>503</code>. Clients that use a metadata document, such as Claude Code,
+                aren&apos;t counted.
+              </>,
+              <>
+                <Strong>A Kubernetes smoke test.</Strong> <code>make k8s-smoke</code> applies the Kustomize base to a
+                three-node kind cluster and checks the migrate init container, two replicas on different nodes, tool
+                calls in both protocol eras, a rolling update and a pod deletion with no failed request, the SIGTERM
+                drain and the disruption budget.
+              </>,
+            ]}
+            note={
+              <>
+                Limits: a server that rejects the token only when a tool runs still passes Test. The smoke test does not
+                cover ingress and TLS, OIDC, upgrades or restores, and it tests NetworkPolicy only with Calico.{" "}
+                <TextLink href={`${site.deployUrl}#smoke-test`}>Smoke test</TextLink>
               </>
             }
           />
@@ -1163,19 +1208,22 @@ function OpenSource() {
                 hosted MCP server has run end to end with each person&apos;s own GitHub sign-in.
               </p>
               <p>
-                {site.version} was published on October 18, 2026, the day after v0.1.0. It is pre-1.0 software and
-                hasn&apos;t run in production. Claude Code 2.1.280 has been run on the 2026-07-28 revision (discovery,
-                lists, tool calls and the consent link) and {site.version} runs on one real cluster. Not verified yet: Claude
-                Code&apos;s OAuth sign-in on the new revision, a client that declares URL elicitation, VS Code and Cursor, a real
-                Google or Microsoft provider for delegated credentials (only GitHub has run end to end), email over TLS to a
-                real mail provider, a kind smoke test, and an end-to-end
-                test that provider tokens are redacted from captured payloads (unit tests only). Pilot it before you
-                depend on it.
+                {site.previousVersion} and {site.version} were both published on October 18, 2026, the day after v0.1.0. It is
+                pre-1.0 software and hasn&apos;t run in production. Claude Code 2.1.280 has been run on the 2026-07-28
+                revision (discovery, lists, tool calls and the consent link), and {site.previousVersion} was deployed to one
+                real cluster (a CloudNativePG database with continuous archiving and a tested restore). The Kubernetes
+                manifests also pass a smoke test on a kind cluster. Not verified yet: Claude Code&apos;s OAuth sign-in on the
+                new revision, a client that declares URL elicitation, VS Code and Cursor, a real Google or Microsoft
+                provider for delegated credentials (only GitHub has run end to end), email over TLS to a real mail
+                provider, a real Slack webhook, and an end-to-end test that provider tokens are redacted from captured
+                payloads (unit tests only). Pilot it before you depend on it.
               </p>
               <p>
                 Limits: remote servers only (no stdio); streaming covers the progress of a tool call, with no
                 server-pushed list changes or resource subscriptions; no sampling or roots relay; notifications are sent
-                by one loop on one replica at a time. Next on the{" "}
+                by one loop on one replica at a time; a server that rejects the identity token only when a tool runs
+                passes Test connection; the smoke test doesn&apos;t cover ingress and TLS, OIDC, upgrades or restores.
+                Next on the{" "}
                 <TextLink href={site.roadmapUrl}>roadmap</TextLink> (an order of work, not a schedule): per-person
                 secrets for servers that don&apos;t use OAuth, tool classification and scopes on credentials, and
                 approval before sensitive calls.
