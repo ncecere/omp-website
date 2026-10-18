@@ -647,7 +647,7 @@ function NewInRelease() {
             note={
               <>
                 Exercised with the official conformance suite, curl and the Go SDK client; the failures that remain are
-                by design. Not yet tried with real Claude Code, VS Code or Cursor on the new revision.{" "}
+                by design. Claude Code 2.1.280 has been run on the new revision (discovery, lists, tool calls, the consent link); not yet VS Code or Cursor.{" "}
                 <TextLink href={site.mcpProtocolUrl}>MCP protocol</TextLink>
               </>
             }
@@ -1164,10 +1164,11 @@ function OpenSource() {
               </p>
               <p>
                 {site.version} was published on October 18, 2026, the day after v0.1.0. It is pre-1.0 software and
-                hasn&apos;t run in production. Not verified yet: Claude Code, VS Code and Cursor on the 2026-07-28
-                revision (it was exercised with the conformance suite, curl and the Go SDK client), a real Google or
-                Microsoft provider for delegated credentials (only GitHub has run end to end), email over TLS to a real
-                mail provider, the Kubernetes manifests on a real cluster (validated, not applied), and an end-to-end
+                hasn&apos;t run in production. Claude Code 2.1.280 has been run on the 2026-07-28 revision (discovery,
+                lists, tool calls and the consent link) and {site.version} runs on one real cluster. Not verified yet: Claude
+                Code&apos;s OAuth sign-in on the new revision, a client that declares URL elicitation, VS Code and Cursor, a real
+                Google or Microsoft provider for delegated credentials (only GitHub has run end to end), email over TLS to a
+                real mail provider, a kind smoke test, and an end-to-end
                 test that provider tokens are redacted from captured payloads (unit tests only). Pilot it before you
                 depend on it.
               </p>
