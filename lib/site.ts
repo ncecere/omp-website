@@ -37,7 +37,8 @@ export const site = {
   clientCompatibilityUrl: "https://docs.omp.bitop.dev/docs/use/client-compatibility",
   statusUrl: `${tree}/docs/status.md`,
   deployUrl: `${tree}/docs/deploy.md`,
-  roadmapUrl: `${tree}/docs/roadmap.md`,
+  // The roadmap changes between releases, so it is not pinned at the tag: the docs site's page, which links every item's issue.
+  roadmapUrl: "https://docs.omp.bitop.dev/docs/releases/roadmap",
   threatModelUrl: `${tree}/docs/threat-model.md`,
   mcpProtocolUrl: `${tree}/docs/mcp-protocol.md`,
   adminOverviewUrl: `${tree}/docs/admin-overview.md`,

@@ -1224,9 +1224,10 @@ function OpenSource() {
                 by one loop on one replica at a time; a server that rejects the identity token only when a tool runs
                 passes Test connection; the smoke test doesn&apos;t cover ingress and TLS, OIDC, upgrades or restores.
                 Next on the{" "}
-                <TextLink href={site.roadmapUrl}>roadmap</TextLink> (an order of work, not a schedule): per-person
-                secrets for servers that don&apos;t use OAuth, tool classification and scopes on credentials, and
-                approval before sensitive calls.
+                <TextLink href={site.roadmapUrl}>roadmap</TextLink> (an order of work, not a schedule; every item is a
+                GitHub issue with its implementation plan): a pilot with a real team, real-client checks and a few open
+                decisions first, then per-person secrets for servers that don&apos;t use OAuth, tool classification and
+                scopes on credentials, and approval before sensitive calls.
               </p>
             </div>
             <p className="mt-6 text-brand-muted">
