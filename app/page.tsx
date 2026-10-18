@@ -19,9 +19,12 @@ import { ButtonLink, CheckList, CodeBlock, Eyebrow, Note, SectionHeading, Strong
 import { site } from "@/lib/site";
 
 /*
- * Every claim here is checked against Open MCP Portal v0.1.0
- * (github.com/ncecere/open-mcp-portal at the v0.1.0 tag; the repository was
- * called open-mcp-gateway until the rename): SPEC.md, docs/decisions.md,
+ * Every claim here is checked against Open MCP Portal v0.2.0
+ * (github.com/ncecere/open-mcp-portal at the v0.2.0 tag; the repository was
+ * called open-mcp-gateway until the rename): docs/releases/v0.2.0.md (the
+ * "New in v0.2.0" section and the status card), docs/threat-model.md,
+ * docs/mcp-protocol.md, docs/admin-overview.md, docs/notifications.md,
+ * docs/automation-tokens.md, SPEC.md, docs/decisions.md,
  * docs/status.md, docs/registry.md, the "As built" sections of
  * docs/phase3-gateways.md to docs/phase7-upstream-oauth.md,
  * docs/upstream-identity.md, docs/connect-clients.md, docs/deploy.md,
@@ -814,14 +817,19 @@ function Screenshots() {
 /* ------------------------------------------------------------ Self-host */
 
 // Makefile `demo` and compose.demo.yaml; docs/deploy.md "Demo".
-const quickStart = `git clone --branch v0.1.0 https://github.com/ncecere/open-mcp-portal.git
+const quickStart = `git clone --branch ${site.version} https://github.com/ncecere/open-mcp-portal.git
 cd open-mcp-portal
 make demo    # portal + PostgreSQL + a fake MCP server
              # on http://localhost:8090, with development sign-in`;
 
 // The release image (signed with cosign keyless signing by the repository's
 // image workflow at the tag); deploy/kubernetes pins the same image.
-const pullImage = `docker pull ${site.image}`;
+const pullImage = `docker pull ${site.image}
+
+# Verify the signature (cosign v3.0 or newer; keyless, GitHub Actions OIDC)
+cosign verify ${site.image} \\
+  --certificate-identity ${site.imageCertificateIdentity} \\
+  --certificate-oidc-issuer ${site.imageOidcIssuer}`;
 
 // docs/deploy.md "Kubernetes › Secrets".
 const k8sSecrets = `kubectl create namespace open-mcp-portal
@@ -875,7 +883,7 @@ function SelfHost() {
               The demo uses development sign-in and public example keys, which the portal accepts only on a loopback
               address. Never expose it.
             </Note>
-            <CodeBlock label="Run the published release image">{pullImage}</CodeBlock>
+            <CodeBlock label={`Pull and verify the published ${site.version} image (tag ${site.version})`}>{pullImage}</CodeBlock>
             <CodeBlock label="Kubernetes: the runtime secret the Kustomize base expects">{k8sSecrets}</CodeBlock>
           </div>
           <div className="self-start rounded-card border border-brand-border bg-brand-surface p-6 sm:p-8">
@@ -896,8 +904,8 @@ function SelfHost() {
               SIGTERM.
             </p>
             <Note>
-              The image <code>{site.image}</code> is published and signed with cosign; pin it by digest in your
-              overlay. There is no Helm chart.
+              The image <code>{site.imageTag}</code> is published and signed with cosign (v3.0 or newer verifies it);
+              pin it by digest in your overlay. There is no Helm chart.
             </Note>
             <div className="mt-6 flex flex-wrap gap-3">
               <ButtonLink href={site.docsUrl}>
