@@ -1158,8 +1158,8 @@ function OpenSource() {
             </h3>
             <div className="mt-4 space-y-3 leading-relaxed text-brand-muted">
               <p>
-                Everything on this page is built and tested against real PostgreSQL. Real clients have worked since
-                v0.1.0: Claude Code and pi have signed in to gateways over OAuth and called tools, and GitHub&apos;s
+                Everything on this page is built and tested against real PostgreSQL. Real clients worked with
+                v0.1.0, on the earlier protocol revisions: Claude Code and pi signed in to gateways over OAuth and called tools, and GitHub&apos;s
                 hosted MCP server has run end to end with each person&apos;s own GitHub sign-in.
               </p>
               <p>
