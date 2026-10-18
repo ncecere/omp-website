@@ -19,8 +19,8 @@ import { ButtonLink, CheckList, CodeBlock, Eyebrow, Note, SectionHeading, Strong
 import { site } from "@/lib/site";
 
 /*
- * Every claim here is checked against Open MCP Portal at v0.1.0 (main of
- * github.com/ncecere/open-mcp-portal, before the tag; the repository was
+ * Every claim here is checked against Open MCP Portal v0.1.0
+ * (github.com/ncecere/open-mcp-portal at the v0.1.0 tag; the repository was
  * called open-mcp-gateway until the rename): SPEC.md, docs/decisions.md,
  * docs/status.md, docs/registry.md, the "As built" sections of
  * docs/phase3-gateways.md to docs/phase7-upstream-oauth.md,
@@ -814,10 +814,14 @@ function Screenshots() {
 /* ------------------------------------------------------------ Self-host */
 
 // Makefile `demo` and compose.demo.yaml; docs/deploy.md "Demo".
-const quickStart = `git clone https://github.com/ncecere/open-mcp-portal.git
+const quickStart = `git clone --branch v0.1.0 https://github.com/ncecere/open-mcp-portal.git
 cd open-mcp-portal
 make demo    # portal + PostgreSQL + a fake MCP server
              # on http://localhost:8090, with development sign-in`;
+
+// The release image (signed with cosign keyless signing by the repository's
+// image workflow at the tag); deploy/kubernetes pins the same image.
+const pullImage = `docker pull ${site.image}`;
 
 // docs/deploy.md "Kubernetes › Secrets".
 const k8sSecrets = `kubectl create namespace open-mcp-portal
@@ -871,6 +875,7 @@ function SelfHost() {
               The demo uses development sign-in and public example keys, which the portal accepts only on a loopback
               address. Never expose it.
             </Note>
+            <CodeBlock label="Run the published release image">{pullImage}</CodeBlock>
             <CodeBlock label="Kubernetes: the runtime secret the Kustomize base expects">{k8sSecrets}</CodeBlock>
           </div>
           <div className="self-start rounded-card border border-brand-border bg-brand-surface p-6 sm:p-8">
@@ -891,8 +896,8 @@ function SelfHost() {
               SIGTERM.
             </p>
             <Note>
-              There is no published image or Helm chart yet: build the image with <code>make docker</code> and pin it by
-              digest in your overlay.
+              The image <code>{site.image}</code> is published and signed with cosign; pin it by digest in your
+              overlay. There is no Helm chart.
             </Note>
             <div className="mt-6 flex flex-wrap gap-3">
               <ButtonLink href={site.docsUrl}>
@@ -960,7 +965,7 @@ function OpenSource() {
               <Eyebrow>Project status</Eyebrow>
             </div>
             <h3 id="status-title" className="mt-3 text-2xl font-semibold tracking-tight text-brand-text">
-              {site.version}: the first release, and honest about it
+              {site.version} is released, and honest about it
             </h3>
             <div className="mt-4 space-y-3 leading-relaxed text-brand-muted">
               <p>
@@ -969,9 +974,10 @@ function OpenSource() {
                 end to end with each person&apos;s own GitHub sign-in.
               </p>
               <p>
-                It is pre-1.0 software and hasn&apos;t run in production. Not tried yet: delegated credentials with a
-                real Google or Microsoft provider (only a fake one so far), the CI workflow on GitHub&apos;s runners, and
-                a smoke test on a real Kubernetes cluster. Pilot it before you depend on it.
+                {site.version} is the first release, published on October 17, 2026. It is pre-1.0 software and hasn&apos;t
+                run in production. Not verified yet: delegated credentials with a real Google or Microsoft provider
+                (only a fake one so far), VS Code and Cursor beyond their configuration snippets, and a smoke test of
+                the Kubernetes manifests on a real cluster. Pilot it before you depend on it.
               </p>
               <p>
                 Not built yet: streaming responses through to the client (calls are buffered, up to 1 MiB), resource
@@ -981,7 +987,7 @@ function OpenSource() {
             </div>
             <p className="mt-6 text-brand-muted">
               Read the <TextLink href={site.statusUrl}>status and handoff notes</TextLink> and the{" "}
-              <TextLink href={site.releasesUrl}>releases</TextLink>.
+              <TextLink href={site.releaseNotesUrl}>{site.version} release notes</TextLink>.
             </p>
           </article>
         </div>

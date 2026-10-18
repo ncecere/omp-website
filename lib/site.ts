@@ -1,7 +1,7 @@
 const repoUrl = "https://github.com/ncecere/open-mcp-portal";
-// Links into the repository follow `main` until the first tag exists; once
-// v0.1.0 is tagged, point `tree` at `${repoUrl}/blob/v0.1.0`.
-const tree = `${repoUrl}/blob/main`;
+// Links into the repository are pinned at the release tag, so they keep
+// showing the files of the version this page describes.
+const tree = `${repoUrl}/blob/v0.1.0`;
 
 export const site = {
   name: "Open MCP Portal",
@@ -15,11 +15,11 @@ export const site = {
   docsUrl: "https://docs.omp.bitop.dev",
   repoUrl,
   version: "v0.1.0",
-  // The release day of `version` (the footer and the sitemap show it). Null
-  // until the tag exists; set it the day the release is tagged.
-  releaseDate: null as string | null,
-  // Until v0.1.0 is tagged, the release link goes to the releases page.
-  releaseNotesUrl: `${repoUrl}/releases`,
+  // The release day of `version` (the footer and the sitemap show it).
+  releaseDate: "2026-10-17" as string | null,
+  releaseNotesUrl: `${repoUrl}/releases/tag/v0.1.0`,
+  // The published, cosign-signed container image of `version`.
+  image: "ghcr.io/ncecere/open-mcp-portal:v0.1.0",
   releasesUrl: `${repoUrl}/releases`,
   licenseUrl: `${tree}/LICENSE`,
   securityUrl: `${repoUrl}/security`,
