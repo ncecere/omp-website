@@ -23,7 +23,7 @@
   },
   "connect-confirm": {
     "file": "connect-confirm-more-scopes",
-    "alt": "Connect your Google account: the request (signed in as, the tool that asked, the gateway, the provider, the account connected now) and each scope Google will ask for, gmail.readonly marked Already allowed and gmail.compose New, with Cancel and Continue to Google.",
+    "alt": "Connect your Google account: the request (signed in as, the tool that asked, the gateway, the server and its team, the provider, the account connected now), each scope Google will ask for (gmail.readonly marked Already granted and gmail.compose New) and a note that the portal sends the token only to servers the person allows, with Cancel and Continue to Google.",
     "caption": "A tool that needs a person's own account answers with a one-time link to this page. The token stays in the portal; the AI client never sees it."
   },
   "admin-usage": {
