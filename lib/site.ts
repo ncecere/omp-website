@@ -1,7 +1,7 @@
 const repoUrl = "https://github.com/ncecere/open-mcp-portal";
 // Links into the repository are pinned at the release tag, so they keep
 // showing the files of the version this page describes.
-const tree = `${repoUrl}/blob/v0.2.0`;
+const tree = `${repoUrl}/blob/v0.2.1`;
 
 export const site = {
   name: "Open MCP Portal",
@@ -14,16 +14,20 @@ export const site = {
     "Open MCP Portal (OMP) is a self-hosted, open-source portal where teams register the MCP servers they build, publish them to a company catalog, and give people and agents governed access through curated gateways, with sign-in, signed identity, delegated credentials and audit.",
   docsUrl: "https://docs.omp.bitop.dev",
   repoUrl,
-  version: "v0.2.0",
+  version: "v0.2.1",
+  // The release before it: the "New in v0.2.0" section describes it and
+  // links its notes, since v0.2.1 is a small release after it.
+  previousVersion: "v0.2.0",
+  previousReleaseNotesUrl: `${repoUrl}/releases/tag/v0.2.0`,
   // The release day of `version` (the footer and the sitemap show it).
   releaseDate: "2026-10-18" as string | null,
-  releaseNotesUrl: `${repoUrl}/releases/tag/v0.2.0`,
+  releaseNotesUrl: `${repoUrl}/releases/tag/v0.2.1`,
   // The published, cosign-signed container image of `version`, by digest
-  // (the tag is v0.2.0). Verify with cosign v3.0 or newer, certificate
+  // (the tag is v0.2.1). Verify with cosign v3.0 or newer, certificate
   // identity `imageCertificateIdentity`, OIDC issuer `imageOidcIssuer`.
-  image: "ghcr.io/ncecere/open-mcp-portal@sha256:54033a775d1f15748588de86d57ed3c4c09a28e372d77105003c273210a82541",
-  imageTag: "ghcr.io/ncecere/open-mcp-portal:v0.2.0",
-  imageCertificateIdentity: `${repoUrl}/.github/workflows/image.yml@refs/tags/v0.2.0`,
+  image: "ghcr.io/ncecere/open-mcp-portal@sha256:4e84fe0571dcf079a4c7f83e3692dbae19668c2b8f2ed32beb2276dbcd0a00a1",
+  imageTag: "ghcr.io/ncecere/open-mcp-portal:v0.2.1",
+  imageCertificateIdentity: `${repoUrl}/.github/workflows/image.yml@refs/tags/v0.2.1`,
   imageOidcIssuer: "https://token.actions.githubusercontent.com",
   releasesUrl: `${repoUrl}/releases`,
   licenseUrl: `${tree}/LICENSE`,
