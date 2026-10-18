@@ -1210,10 +1210,10 @@ function OpenSource() {
               <p>
                 {site.previousVersion} and {site.version} were both published on October 18, 2026, the day after v0.1.0. It is
                 pre-1.0 software and hasn&apos;t run in production. Claude Code 2.1.280 has been run on the 2026-07-28
-                revision (discovery, lists, tool calls and the consent link), and {site.previousVersion} was deployed to one
-                real cluster (a CloudNativePG database with continuous archiving and a tested restore). The Kubernetes
-                manifests also pass a smoke test on a kind cluster. Not verified yet: Claude Code&apos;s OAuth sign-in on the
-                new revision, a client that declares URL elicitation, VS Code and Cursor, a real Google or Microsoft
+                revision, with an API key and with its OAuth sign-in (discovery, lists, tool calls and the consent link), and
+                {site.version} runs on one real cluster (a CloudNativePG database with continuous archiving and a tested
+                restore). The Kubernetes manifests also pass a smoke test on a kind cluster. Not verified yet: a client that
+                declares URL elicitation, VS Code and Cursor, a real Google or Microsoft
                 provider for delegated credentials (only GitHub has run end to end), email over TLS to a real mail
                 provider, a real Slack webhook, and an end-to-end test that provider tokens are redacted from captured
                 payloads (unit tests only). Pilot it before you depend on it.
