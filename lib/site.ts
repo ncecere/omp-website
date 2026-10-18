@@ -28,6 +28,9 @@ export const site = {
   releasesUrl: `${repoUrl}/releases`,
   licenseUrl: `${tree}/LICENSE`,
   securityUrl: `${repoUrl}/security`,
+  // Where people ask questions and report how their MCP client works.
+  discussionsUrl: `${repoUrl}/discussions`,
+  clientCompatibilityUrl: "https://docs.omp.bitop.dev/docs/use/client-compatibility",
   statusUrl: `${tree}/docs/status.md`,
   deployUrl: `${tree}/docs/deploy.md`,
   roadmapUrl: `${tree}/docs/roadmap.md`,

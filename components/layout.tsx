@@ -95,6 +95,8 @@ export function SiteFooter() {
             {site.releaseDate ? <FooterLink href={site.releaseNotesUrl}>Release {site.version}</FooterLink> : null}
             <FooterLink href={site.releasesUrl}>All releases</FooterLink>
             <FooterLink href={site.statusUrl}>Project status</FooterLink>
+            <FooterLink href={site.discussionsUrl}>Questions and feedback</FooterLink>
+            <FooterLink href={site.clientCompatibilityUrl}>Client compatibility</FooterLink>
           </ul>
         </nav>
         <nav aria-labelledby="footer-legal">
