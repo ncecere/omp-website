@@ -42,6 +42,7 @@ export default function Home() {
       <Problem />
       <HowItWorks />
       <Features />
+      <NewInRelease />
       <Connect />
       <ServerAuthors />
       <Screenshots />
@@ -485,12 +486,14 @@ function Features() {
               <>
                 <Strong>Delegated credentials</Strong> for your own servers: admins configure auth providers (presets for
                 GitHub, Google, Microsoft Entra ID, Atlassian, Slack and GitLab), and a server asks for a provider and
-                scopes, per tool if needed.
+                scopes, per tool if needed. Each person allows each server once, and the token goes only to a server they
+                allowed.
               </>,
               <>
                 <Strong>A link, not an error:</Strong> the first call answers with a one-time link (JSON-RPC{" "}
-                <code>-32042</code>) to a page that names the tool, the gateway and every scope. It works only for that
-                person, once, for 10 minutes.
+                <code>-32042</code> for clients on earlier revisions; see New in {site.version} for 2026-07-28) to a
+                page that names the tool, the gateway and every scope. It works only for that person, once, for 10
+                minutes.
               </>,
               <>
                 <Strong>Kept fresh, easy to revoke:</Strong> tokens are encrypted at rest and refreshed by the portal.
@@ -582,6 +585,184 @@ function Features() {
                 <Strong>Key rotation</Strong> for the encryption key and the API key pepper, while serving.
               </>,
             ]}
+          />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ------------------------------------------------------- New in v0.2.0 */
+
+// docs/releases/v0.2.0.md. Claims and limits are the release notes' own; the
+// "not yet tried" list is repeated in the project status card.
+function NewInRelease() {
+  return (
+    <section id="new" aria-labelledby="new-title" className="scroll-mt-16 border-t border-brand-border bg-brand-surface-sunken py-20 sm:py-24">
+      <div className="container-page">
+        <SectionHeading id="new-title" eyebrow={`New in ${site.version}`} title="The newest MCP revision, and what a pilot needs to run it">
+          <p>
+            {site.version} adds support for the MCP 2026-07-28 revision, an admin overview, notifications and automation
+            tokens, and fixes the issues found in a security review of v0.1.0. Read the{" "}
+            <TextLink href={site.releaseNotesUrl}>release notes</TextLink> before you upgrade: it adds migrations, and
+            people consent once per server.
+          </p>
+        </SectionHeading>
+
+        <div className="mt-12 grid gap-6 lg:grid-cols-2">
+          {/* docs/releases/v0.2.0.md "MCP 2026-07-28, and every older revision"; docs/mcp-protocol.md */}
+          <FeatureCard
+            id="new-protocol"
+            icon={<Network className="size-5" />}
+            eyebrow="Protocol"
+            title="MCP 2026-07-28, next to every older revision"
+            wide
+            lead={
+              <p>
+                Gateways speak the 2026-07-28 revision alongside 2024-11-05, 2025-03-26, 2025-06-18 and 2025-11-25. The
+                revision is chosen per request, so one gateway serves old and new clients at once, and an older client
+                sees exactly what it saw before.
+              </p>
+            }
+            bullets={[
+              <>
+                <Strong>Toward clients:</Strong> <code>server/discover</code>, the required request headers checked against the
+                body, and lists marked private to the person, because they differ per person.
+              </>,
+              <>
+                <Strong>&ldquo;Connect your account&rdquo; as a question:</Strong> a client that declares URL elicitation gets
+                the consent link as an <code>input_required</code> result. Other 2026-07-28 clients get a tool error with
+                the link in the text; older clients keep <code>-32042</code>.
+              </>,
+              <>
+                <Strong>Toward your servers:</Strong> the portal tries 2026-07-28 first, falls back to{" "}
+                <code>initialize</code> by the specification&apos;s rule, and shows the answer on the server&apos;s page.
+              </>,
+              <>
+                <Strong>Relayed and streamed:</Strong> an upstream server&apos;s elicitation requests reach a client that
+                can answer them, a call&apos;s progress streams as server-sent events when the client asks, and trace
+                headers are passed through.
+              </>,
+            ]}
+            note={
+              <>
+                Exercised with the official conformance suite, curl and the Go SDK client; the failures that remain are
+                by design. Not yet tried with real Claude Code, VS Code or Cursor on the new revision.{" "}
+                <TextLink href={site.mcpProtocolUrl}>MCP protocol</TextLink>
+              </>
+            }
+          />
+
+          {/* docs/releases/v0.2.0.md "For the pilot"; docs/admin-overview.md */}
+          <FeatureCard
+            id="new-overview"
+            icon={<Activity className="size-5" />}
+            eyebrow="Admin overview"
+            title="What needs attention, on one page"
+            lead={
+              <p>
+                Platform admins land on an Overview of what needs attention across the portal, with the numbers that
+                matter. Each team has the same for itself.
+              </p>
+            }
+            bullets={[
+              <>Failing servers, held-back changes, reviews waiting, expiring keys and lapsed sign-ins.</>,
+              <>Every item opens the screen where it is dealt with.</>,
+            ]}
+            note={<TextLink href={site.adminOverviewUrl}>Admin overview</TextLink>}
+          />
+
+          {/* docs/notifications.md */}
+          <FeatureCard
+            id="new-notifications"
+            icon={<Plug className="size-5" />}
+            eyebrow="Notifications"
+            title="In the portal, by email, or to a webhook"
+            lead={
+              <p>
+                Eight events, with personal preferences per event and channel. Team webhooks are managed by team owners and
+                admins, platform webhooks by platform admins.
+              </p>
+            }
+            bullets={[
+              <>
+                <Strong>A bell and inbox</Strong> in the portal.
+              </>,
+              <>
+                <Strong>Email</Strong> through your SMTP server: off until you set <code>SMTP_HOST</code>, and only to
+                addresses your identity provider reported as verified.
+              </>,
+              <>
+                <Strong>Webhooks:</Strong> signed JSON for your own receiver, or Slack-compatible. URLs are stored encrypted
+                and shown as a host only; they reach public https addresses unless the operator allows a network.
+              </>,
+            ]}
+            note={
+              <>
+                Email has been tested against a local mail sink, not yet a real provider over TLS.{" "}
+                <TextLink href={site.notificationsUrl}>Notifications</TextLink>
+              </>
+            }
+          />
+
+          {/* docs/automation-tokens.md */}
+          <FeatureCard
+            id="new-tokens"
+            icon={<Key className="size-5" />}
+            eyebrow="Automation tokens"
+            title="Tokens for CI, for the management API"
+            lead={
+              <p>
+                Platform tokens (read or provision) and team publisher tokens, which register, refresh and publish a
+                team&apos;s servers, for the management API under <code>/v1</code>.
+              </p>
+            }
+            bullets={[
+              <>
+                <Strong>Expiring and revocable in one click,</Strong> showing who made them and when they were last used.
+              </>,
+              <>
+                <Strong>Audited as the token,</Strong> and created and revoked only in a browser session.
+              </>,
+              <>
+                <Strong>Never on <code>/mcp</code>,</Strong> and MCP credentials never work on <code>/v1</code>.
+              </>,
+            ]}
+            note={<TextLink href={site.automationTokensUrl}>Automation tokens</TextLink>}
+          />
+
+          {/* docs/releases/v0.2.0.md "Security fixes"; docs/threat-model.md */}
+          <FeatureCard
+            id="new-security"
+            icon={<Shield className="size-5" />}
+            eyebrow="Security"
+            title="Fixes from a published threat model"
+            lead={
+              <p>
+                A review of v0.1.0 found four issues, all fixed in {site.version}. The{" "}
+                <TextLink href={site.threatModelUrl}>threat model</TextLink> is written for security reviewers.
+              </p>
+            }
+            bullets={[
+              <>
+                <Strong>Provider tokens go only to servers a person allowed,</Strong> at the address they had when allowed.
+                Moving a server to another host ends its permissions.
+              </>,
+              <>
+                <Strong>Approvals are bound to what the reviewer saw:</Strong> an approval of something that changed in
+                between is refused.
+              </>,
+              <>
+                <Strong>A stored header value is not sent to a new origin</Strong> unless the same change supplies a new
+                one, and a crafted sign-in redirect no longer leaves the site.
+              </>,
+            ]}
+            note={
+              <>
+                Upgrading: everyone consents once per server, and scripts that approve must send the digest they
+                reviewed. A person&apos;s provider token still carries every scope they granted that provider.
+              </>
+            }
           />
         </div>
       </div>
@@ -977,20 +1158,26 @@ function OpenSource() {
             </h3>
             <div className="mt-4 space-y-3 leading-relaxed text-brand-muted">
               <p>
-                Everything on this page is built and tested against real PostgreSQL. Real clients work: Claude Code and
-                pi have signed in to gateways over OAuth and called tools, and GitHub&apos;s hosted MCP server has run
-                end to end with each person&apos;s own GitHub sign-in.
+                Everything on this page is built and tested against real PostgreSQL. Real clients have worked since
+                v0.1.0: Claude Code and pi have signed in to gateways over OAuth and called tools, and GitHub&apos;s
+                hosted MCP server has run end to end with each person&apos;s own GitHub sign-in.
               </p>
               <p>
-                {site.version} is the first release, published on October 17, 2026. It is pre-1.0 software and hasn&apos;t
-                run in production. Not verified yet: delegated credentials with a real Google or Microsoft provider
-                (only a fake one so far), VS Code and Cursor beyond their configuration snippets, and a smoke test of
-                the Kubernetes manifests on a real cluster. Pilot it before you depend on it.
+                {site.version} was published on October 18, 2026, the day after v0.1.0. It is pre-1.0 software and
+                hasn&apos;t run in production. Not verified yet: Claude Code, VS Code and Cursor on the 2026-07-28
+                revision (it was exercised with the conformance suite, curl and the Go SDK client), a real Google or
+                Microsoft provider for delegated credentials (only GitHub has run end to end), email over TLS to a real
+                mail provider, the Kubernetes manifests on a real cluster (validated, not applied), and an end-to-end
+                test that provider tokens are redacted from captured payloads (unit tests only). Pilot it before you
+                depend on it.
               </p>
               <p>
-                Not built yet: streaming responses through to the client (calls are buffered, up to 1 MiB), resource
-                subscriptions, and forwarding of sampling, elicitation and roots. Later: servers hosted by the portal
-                itself, and personal gateways.
+                Limits: remote servers only (no stdio); streaming covers the progress of a tool call, with no
+                server-pushed list changes or resource subscriptions; no sampling or roots relay; notifications are sent
+                by one loop on one replica at a time. Next on the{" "}
+                <TextLink href={site.roadmapUrl}>roadmap</TextLink> (an order of work, not a schedule): per-person
+                secrets for servers that don&apos;t use OAuth, tool classification and scopes on credentials, and
+                approval before sensitive calls.
               </p>
             </div>
             <p className="mt-6 text-brand-muted">
