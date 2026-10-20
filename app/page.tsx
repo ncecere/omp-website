@@ -859,8 +859,8 @@ function NewInRelease() {
                 Limits: after the first confirmation a local process can still use a trusted client&apos;s ID silently; a
                 server that refuses the token only when a tool runs still passes Test connection; the notice has not been
                 run with the real Claude Code client. Open in the{" "}
-                <TextLink href={site.threatModelUrl}>threat model</TextLink>: per-provider allow-lists, audit export, split
-                database roles and idle sessions.
+                <TextLink href={site.threatModelUrl}>threat model</TextLink> at that release: per-provider allow-lists (done
+                in {site.version}), audit export, split database roles and idle sessions.
               </>
             }
           />
@@ -924,6 +924,59 @@ function NewInRelease() {
                 <code>act</code> claim. The relay control, the present-person switches and the Allow dialog were not looked at
                 in a browser.{" "}
                 <TextLink href={site.agentPlatformsUrl}>Administrator&apos;s guide</TextLink>
+              </>
+            }
+          />
+
+          {/* docs/releases/v0.3.1.md "What changed", "Upgrading", "Verification" and "Known limitations"; docs/phase5-delegated-credentials.md, docs/registry.md, docs/deploy.md */}
+          <FeatureCard
+            id="new-credentials"
+            icon={<Activity className="size-5" />}
+            eyebrow={`Then ${site.version}`}
+            title="Provider access lists, several credential parts, tracing"
+            wide
+            lead={
+              <p>
+                {site.version} was published on October 20, 2026, the same day as {site.agentVersion}. It adds three migrations
+                (<code>00021</code> to <code>00023</code>), all expand-only. <Strong>Nothing changes for existing providers or
+                servers until an admin opts in,</Strong> but existing auth providers stay open to every team, so read its{" "}
+                <TextLink href={site.releaseNotesUrl}>release notes</TextLink> before you upgrade.
+              </p>
+            }
+            bullets={[
+              <>
+                <Strong>Who may use an auth provider.</Strong> A provider created from now on starts restricted: only servers
+                of the teams you list, or servers you name, may require it and receive people&apos;s tokens. Existing
+                providers stay open and show a warning. The list is checked when a requirement is saved, when a person allows
+                a server and on every call, including a call an agent relays. A provider can also be set to refresh with
+                only the scopes a call needs; only Microsoft is pre-filled, and a refused scope fails the call.{" "}
+                <TextLink href={site.providerAccessUrl}>Access lists and narrowing</TextLink>
+              </>,
+              <>
+                <Strong>A server&apos;s own credential as several parts.</Strong> Headers, a bearer token, Basic auth or a
+                query-string key, each sealed on its own and sent with every request. Another origin never keeps a stored
+                value, for any part. If a part sets <code>Authorization</code>, the identity token moves to{" "}
+                <code>{site.headers.identity}</code>. Servers with one header keep working unchanged.{" "}
+                <TextLink href={site.registryCredentialsUrl}>Credential parts</TextLink>
+              </>,
+              <>
+                <Strong>OpenTelemetry tracing, dashboards and alert rules.</Strong> Off unless an OTLP endpoint is set. One span
+                per <code>/mcp</code> request, with child spans for authentication, authorization, the provider credential and
+                the call to the server; span attributes come from a fixed allow-list, never tokens, content, emails or
+                argument values. Call records carry a trace id. Five Grafana dashboards and 14 Prometheus alert rules, with
+                unit tests and runbook entries (<code>make prom-check</code>).{" "}
+                <TextLink href={site.tracingUrl}>Tracing</TextLink>
+              </>,
+            ]}
+            note={
+              <>
+                Limits: a query-string credential travels in the URL, so servers, proxies and their logs may record it; prefer
+                a header. Narrowing is only as good as the provider&apos;s support: where a provider ignores{" "}
+                <code>scope</code> on refresh, the token keeps every scope. Exemplars are not built. If untrusted clients can
+                reach the portal, use <code>traceidratio</code> sampling, because the default lets a client ask for a trace.
+                Not run against a real provider (including Microsoft&apos;s refresh with a scope), a real third-party server
+                that wants Basic or a query key, or a real OpenTelemetry collector or Tempo, and the dashboards&apos; queries
+                were not checked against live data.
               </>
             }
           />
@@ -1327,7 +1380,7 @@ function OpenSource() {
               </p>
               <p>
                 {site.previousVersion} and {site.patchVersion} were both published on October 18, 2026, the day after v0.1.0,
-                and {site.hardeningVersion} and {site.version} on October 20. It is pre-1.0 software and hasn&apos;t run in production. Claude Code
+                and {site.hardeningVersion}, {site.agentVersion} and {site.version} on October 20. It is pre-1.0 software and hasn&apos;t run in production. Claude Code
                 2.1.280 has been run on the 2026-07-28 revision, with an API key and with its OAuth sign-in (discovery,
                 lists, tool calls and the consent link), and {site.version} runs on one real cluster (a CloudNativePG
                 database with continuous archiving and a tested restore). The Kubernetes manifests also pass a smoke test on
@@ -1335,7 +1388,10 @@ function OpenSource() {
                 against tokens from its real signing code and a fake issuer, not its gateway and runtime end to end), the one-time notice for a trusted client with the real Claude Code client
                 (an integration test covers the whole flow), a client that declares URL elicitation, VS Code and Cursor, a
                 real Google or Microsoft provider for delegated credentials (only GitHub has run end to end), email over
-                TLS to a real mail provider, and a real Slack webhook. Pilot it before you depend on it.
+                TLS to a real mail provider, and a real Slack webhook. Also not run: {site.version}&apos;s narrower tokens against a real provider
+                (including Microsoft&apos;s refresh with a scope), a real third-party server that wants Basic or a query key, and a real
+                OpenTelemetry collector or Tempo (a fake receiver stood in; the dashboards&apos; queries were not checked against live
+                data). Pilot it before you depend on it.
               </p>
               <p>
                 Limits: remote servers only (no stdio); streaming covers the progress of a tool call, with no
@@ -1345,8 +1401,10 @@ function OpenSource() {
                 silently; a compromised agent-platform signing key can speak as any person with a portal account, within the
                 relay&apos;s reach, and the platform&apos;s token is bound to a platform-wide audience, not to a relay or a
                 gateway; a person removed at the identity provider stays reachable through agents until suspended in the
-                portal; a server with Send identity off can&apos;t tell an agent&apos;s call from the person&apos;s; the smoke test doesn&apos;t cover ingress and TLS, OIDC, upgrades or restores; per-provider
-                allow-lists, audit export, split database roles and idle sessions are still open in the threat model.
+                portal; a server with Send identity off can&apos;t tell an agent&apos;s call from the person&apos;s; the smoke test doesn&apos;t cover ingress and TLS, OIDC, upgrades or restores;
+                a query-string credential travels in the URL, so servers, proxies and their logs may record it; narrowing a token is only as good as the provider&apos;s
+                support for a scope on refresh, and exemplars are not built; providers that existed before {site.version} stay open to every team until an admin restricts them;
+                audit export, split database roles and idle sessions are still open in the threat model.
                 Next on the{" "}
                 <TextLink href={site.roadmapUrl}>roadmap</TextLink> (an order of work, not a schedule; every item is a
                 GitHub issue with its implementation plan): a pilot with a real team, real-client checks and a run against a
