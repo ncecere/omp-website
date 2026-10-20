@@ -1,7 +1,7 @@
 const repoUrl = "https://github.com/ncecere/open-mcp-portal";
 // Links into the repository are pinned at the release tag, so they keep
 // showing the files of the version this page describes.
-const tree = `${repoUrl}/blob/v0.2.2`;
+const tree = `${repoUrl}/blob/v0.3.0`;
 
 export const site = {
   name: "Open MCP Portal",
@@ -14,23 +14,26 @@ export const site = {
     "Open MCP Portal (OMP) is a self-hosted, open-source portal where teams register the MCP servers they build, publish them to a company catalog, and give people and agents governed access through curated gateways, with sign-in, signed identity, delegated credentials and audit.",
   docsUrl: "https://docs.omp.bitop.dev",
   repoUrl,
-  version: "v0.2.2",
+  version: "v0.3.0",
   // The releases before it: the "New in v0.2.0" section describes
-  // `previousVersion`, and its small follow-up card describes `patchVersion`;
-  // each links its own notes. `version` has its own card after them.
+  // `previousVersion`, its small follow-up card describes `patchVersion`, and
+  // the hardening card after it describes `hardeningVersion`; each links its
+  // own notes. `version` has its own card after them.
   previousVersion: "v0.2.0",
   previousReleaseNotesUrl: `${repoUrl}/releases/tag/v0.2.0`,
   patchVersion: "v0.2.1",
   patchReleaseNotesUrl: `${repoUrl}/releases/tag/v0.2.1`,
+  hardeningVersion: "v0.2.2",
+  hardeningReleaseNotesUrl: `${repoUrl}/releases/tag/v0.2.2`,
   // The release day of `version` (the footer and the sitemap show it).
   releaseDate: "2026-10-20" as string | null,
-  releaseNotesUrl: `${repoUrl}/releases/tag/v0.2.2`,
+  releaseNotesUrl: `${repoUrl}/releases/tag/v0.3.0`,
   // The published, cosign-signed container image of `version`, by digest
-  // (the tag is v0.2.2). Verify with cosign v3.0 or newer, certificate
+  // (the tag is v0.3.0). Verify with cosign v3.0 or newer, certificate
   // identity `imageCertificateIdentity`, OIDC issuer `imageOidcIssuer`.
-  image: "ghcr.io/ncecere/open-mcp-portal@sha256:2e42d17d41f6b3f05baef903b1bef6da609107c34ce074c75237c054c71bdd8d",
-  imageTag: "ghcr.io/ncecere/open-mcp-portal:v0.2.2",
-  imageCertificateIdentity: `${repoUrl}/.github/workflows/image.yml@refs/tags/v0.2.2`,
+  image: "ghcr.io/ncecere/open-mcp-portal@sha256:f6a3598c47e738fd307c7296f0357670872c247ac487069a52686ebb13c515e4",
+  imageTag: "ghcr.io/ncecere/open-mcp-portal:v0.3.0",
+  imageCertificateIdentity: `${repoUrl}/.github/workflows/image.yml@refs/tags/v0.3.0`,
   imageOidcIssuer: "https://token.actions.githubusercontent.com",
   releasesUrl: `${repoUrl}/releases`,
   licenseUrl: `${tree}/LICENSE`,
@@ -49,6 +52,7 @@ export const site = {
   automationTokensUrl: `${tree}/docs/automation-tokens.md`,
   connectUrl: `${tree}/docs/connect-clients.md`,
   identityUrl: `${tree}/docs/upstream-identity.md`,
+  agentPlatformsUrl: `${tree}/docs/agent-platforms.md`,
   mailExampleUrl: `${tree}/examples/mail-mcp/README.md`,
   websiteRepoUrl: "https://github.com/ncecere/omp-website",
   // The example portal used in every snippet on the page: the host the screenshots show
