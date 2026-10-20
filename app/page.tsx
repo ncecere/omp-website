@@ -19,11 +19,11 @@ import { ButtonLink, CheckList, CodeBlock, Eyebrow, Note, SectionHeading, Strong
 import { site } from "@/lib/site";
 
 /*
- * Every claim here is checked against Open MCP Portal v0.3.0
- * (github.com/ncecere/open-mcp-portal at the v0.3.0 tag; the repository was
- * called open-mcp-gateway until the rename): docs/releases/v0.3.0.md (the
- * v0.3.0 card and the status card), docs/releases/v0.2.2.md (the v0.2.2
- * card), docs/releases/v0.2.1.md (the
+ * Every claim here is checked against Open MCP Portal v0.3.1
+ * (github.com/ncecere/open-mcp-portal at the v0.3.1 tag; the repository was
+ * called open-mcp-gateway until the rename): docs/releases/v0.3.1.md (the
+ * v0.3.1 card and the status card), docs/releases/v0.3.0.md (the v0.3.0
+ * card), docs/releases/v0.2.2.md (the v0.2.2 card), docs/releases/v0.2.1.md (the
  * v0.2.1 card), docs/releases/v0.2.0.md (the
  * "New in v0.2.0" section), docs/threat-model.md,
  * docs/mcp-protocol.md, docs/admin-overview.md, docs/notifications.md,
@@ -600,8 +600,9 @@ function Features() {
 // docs/releases/v0.2.0.md (this section describes that release, so it names
 // site.previousVersion, not site.version), plus one card for the small
 // release after it, docs/releases/v0.2.1.md (site.patchVersion), one for the
-// hardening release, docs/releases/v0.2.2.md (site.hardeningVersion), and one
-// for the current release, docs/releases/v0.3.0.md (site.version). Claims and
+// hardening release, docs/releases/v0.2.2.md (site.hardeningVersion), one for
+// the agent-platform release, docs/releases/v0.3.0.md (site.agentVersion), and
+// one for the current release, docs/releases/v0.3.1.md (site.version). Claims and
 // limits are the release notes' own; the "not yet tried" list is repeated in
 // the project status card.
 function NewInRelease() {
@@ -868,18 +869,18 @@ function NewInRelease() {
           <FeatureCard
             id="new-agents"
             icon={<Shield className="size-5" />}
-            eyebrow={`Then ${site.version}`}
+            eyebrow={`Then ${site.agentVersion}`}
             title="Agent-platform trust: an agent's call as the person's call"
             wide
             lead={
               <p>
-                {site.version} was published on October 20, 2026, the same day as {site.hardeningVersion}. The portal can now
+                {site.agentVersion} was published on October 20, 2026, the same day as {site.hardeningVersion}. The portal can now
                 trust an external agent platform, the first being Pi Durable Platform, to say which person an agent is acting
                 for, and then treats the agent&apos;s calls as that person&apos;s, within strict limits. It adds one
                 migration, <code>00020</code>, which is expand-only, and stops reading the old sign-in cookie name, as{" "}
                 {site.hardeningVersion} announced. <Strong>Nothing changes until a platform admin adds a trusted platform and
                 marks a relay service account.</Strong> Read its{" "}
-                <TextLink href={site.releaseNotesUrl}>release notes</TextLink> before you upgrade.
+                <TextLink href={site.agentReleaseNotesUrl}>release notes</TextLink> before you upgrade.
               </p>
             }
             bullets={[
