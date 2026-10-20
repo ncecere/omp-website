@@ -812,6 +812,55 @@ function NewInRelease() {
               </>
             }
           />
+
+          {/* docs/releases/v0.2.2.md "What changed", "Upgrading" and "Known limitations"; docs/threat-model.md section 9 */}
+          <FeatureCard
+            id="new-hardening"
+            icon={<Key className="size-5" />}
+            eyebrow={`Then ${site.version}`}
+            title="A hardening release: public servers, sign-in, registration"
+            wide
+            lead={
+              <p>
+                {site.version} was published on October 20, 2026. It adds two migrations, both expand-only, and two things to plan
+                for: OAuth apps sign in again about every 180 days, and a new default applies to servers you register from
+                now on. Read its <TextLink href={site.releaseNotesUrl}>release notes</TextLink> before you upgrade.
+              </p>
+            }
+            bullets={[
+              <>
+                <Strong>Send identity token starts off for a public server with no sign-in.</Strong> Internal hosts and the
+                header and OAuth modes start on, existing servers are unchanged, and each call now records whether the token
+                was sent. Some public servers answer every tool call with an error when the token is sent.
+              </>,
+              <>
+                <Strong>Refresh tokens have a 180-day lifetime</Strong> from the person&apos;s last sign-in of the app (
+                <code>OAUTH_REFRESH_ABSOLUTE_TTL</code>, <code>0</code> for no limit). Connected apps shows when each sign-in
+                expires; API keys and service-account keys are not affected.
+              </>,
+              <>
+                <Strong>The sign-in flow looks at an app only after you sign in,</Strong> so an anonymous request can no
+                longer make the portal fetch a URL. A trusted client such as Claude Code shows a Continue or Cancel notice
+                the first time a person signs it in from their computer.
+              </>,
+              <>
+                <Strong>Controls for open client registration:</Strong> an admin switch to turn it off, registrations that
+                never received tokens deleted after 24 hours, and <code>OAUTH_MAX_UNUSED_CLIENTS_PER_ADDRESS</code> (default
+                20). The sign-in state cookie is <code>__Host-</code> prefixed on https, a missing{" "}
+                <code>TRUSTED_PROXIES</code> is reported in the log and by <code>doctor</code>, and the Dockerfile&apos;s base
+                images are pinned by digest.
+              </>,
+            ]}
+            note={
+              <>
+                Limits: after the first confirmation a local process can still use a trusted client&apos;s ID silently; a
+                server that refuses the token only when a tool runs still passes Test connection; the notice has not been
+                run with the real Claude Code client. Open in the{" "}
+                <TextLink href={site.threatModelUrl}>threat model</TextLink>: per-provider allow-lists, audit export, split
+                database roles and idle sessions.
+              </>
+            }
+          />
         </div>
       </div>
     </section>
@@ -1211,21 +1260,23 @@ function OpenSource() {
                 hosted MCP server has run end to end with each person&apos;s own GitHub sign-in.
               </p>
               <p>
-                {site.previousVersion} and {site.version} were both published on October 18, 2026, the day after v0.1.0. It is
-                pre-1.0 software and hasn&apos;t run in production. Claude Code 2.1.280 has been run on the 2026-07-28
-                revision, with an API key and with its OAuth sign-in (discovery, lists, tool calls and the consent link), and
-                {site.version} runs on one real cluster (a CloudNativePG database with continuous archiving and a tested
-                restore). The Kubernetes manifests also pass a smoke test on a kind cluster. Not verified yet: a client that
-                declares URL elicitation, VS Code and Cursor, a real Google or Microsoft
-                provider for delegated credentials (only GitHub has run end to end), email over TLS to a real mail
-                provider, a real Slack webhook, and an end-to-end test that provider tokens are redacted from captured
-                payloads (unit tests only). Pilot it before you depend on it.
+                {site.previousVersion} and {site.patchVersion} were both published on October 18, 2026, the day after v0.1.0,
+                and {site.version} on October 20. It is pre-1.0 software and hasn&apos;t run in production. Claude Code
+                2.1.280 has been run on the 2026-07-28 revision, with an API key and with its OAuth sign-in (discovery,
+                lists, tool calls and the consent link), and {site.version} runs on one real cluster (a CloudNativePG
+                database with continuous archiving and a tested restore). The Kubernetes manifests also pass a smoke test on
+                a kind cluster. Not verified yet: the one-time notice for a trusted client with the real Claude Code client
+                (an integration test covers the whole flow), a client that declares URL elicitation, VS Code and Cursor, a
+                real Google or Microsoft provider for delegated credentials (only GitHub has run end to end), email over
+                TLS to a real mail provider, and a real Slack webhook. Pilot it before you depend on it.
               </p>
               <p>
                 Limits: remote servers only (no stdio); streaming covers the progress of a tool call, with no
                 server-pushed list changes or resource subscriptions; no sampling or roots relay; notifications are sent
                 by one loop on one replica at a time; a server that rejects the identity token only when a tool runs
-                passes Test connection; the smoke test doesn&apos;t cover ingress and TLS, OIDC, upgrades or restores.
+                passes Test connection; after its first confirmation a local process can still use a trusted client&apos;s ID
+                silently; the smoke test doesn&apos;t cover ingress and TLS, OIDC, upgrades or restores; per-provider
+                allow-lists, audit export, split database roles and idle sessions are still open in the threat model.
                 Next on the{" "}
                 <TextLink href={site.roadmapUrl}>roadmap</TextLink> (an order of work, not a schedule; every item is a
                 GitHub issue with its implementation plan): a pilot with a real team, real-client checks and a few open
