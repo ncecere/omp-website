@@ -19,10 +19,11 @@ import { ButtonLink, CheckList, CodeBlock, Eyebrow, Note, SectionHeading, Strong
 import { site } from "@/lib/site";
 
 /*
- * Every claim here is checked against Open MCP Portal v0.2.1
- * (github.com/ncecere/open-mcp-portal at the v0.2.1 tag; the repository was
- * called open-mcp-gateway until the rename): docs/releases/v0.2.1.md (the
- * v0.2.1 card and the status card), docs/releases/v0.2.0.md (the
+ * Every claim here is checked against Open MCP Portal v0.2.2
+ * (github.com/ncecere/open-mcp-portal at the v0.2.2 tag; the repository was
+ * called open-mcp-gateway until the rename): docs/releases/v0.2.2.md (the
+ * v0.2.2 card and the status card), docs/releases/v0.2.1.md (the
+ * v0.2.1 card), docs/releases/v0.2.0.md (the
  * "New in v0.2.0" section), docs/threat-model.md,
  * docs/mcp-protocol.md, docs/admin-overview.md, docs/notifications.md,
  * docs/automation-tokens.md, SPEC.md, docs/decisions.md,
@@ -597,8 +598,10 @@ function Features() {
 
 // docs/releases/v0.2.0.md (this section describes that release, so it names
 // site.previousVersion, not site.version), plus one card for the small
-// release after it, docs/releases/v0.2.1.md. Claims and limits are the release
-// notes' own; the "not yet tried" list is repeated in the project status card.
+// release after it, docs/releases/v0.2.1.md (site.patchVersion), and one for
+// the current release, docs/releases/v0.2.2.md (site.version). Claims and
+// limits are the release notes' own; the "not yet tried" list is repeated in
+// the project status card.
 function NewInRelease() {
   return (
     <section id="new" aria-labelledby="new-title" className="scroll-mt-16 border-t border-brand-border bg-brand-surface-sunken py-20 sm:py-24">
@@ -772,13 +775,13 @@ function NewInRelease() {
           <FeatureCard
             id="new-patch"
             icon={<Fingerprint className="size-5" />}
-            eyebrow={`Then ${site.version}`}
+            eyebrow={`Then ${site.patchVersion}`}
             title="A small release: a truer Test, a registration cap, a smoke test"
             wide
             lead={
               <p>
-                {site.version} followed {site.previousVersion} the same day. It has no migration and nothing you must change
-                to upgrade; read its <TextLink href={site.releaseNotesUrl}>release notes</TextLink>.
+                {site.patchVersion} followed {site.previousVersion} the same day. It has no migration and nothing you must change
+                to upgrade; read its <TextLink href={site.patchReleaseNotesUrl}>release notes</TextLink>.
               </p>
             }
             bullets={[
