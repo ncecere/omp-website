@@ -19,11 +19,11 @@ import { ButtonLink, CheckList, CodeBlock, Eyebrow, Note, SectionHeading, Strong
 import { site } from "@/lib/site";
 
 /*
- * Every claim here is checked against Open MCP Portal v0.3.1
- * (github.com/ncecere/open-mcp-portal at the v0.3.1 tag; the repository was
- * called open-mcp-gateway until the rename): docs/releases/v0.3.1.md (the
- * v0.3.1 card and the status card), docs/releases/v0.3.0.md (the v0.3.0
- * card), docs/releases/v0.2.2.md (the v0.2.2 card), docs/releases/v0.2.1.md (the
+ * Every claim here is checked against Open MCP Portal v0.3.2
+ * (github.com/ncecere/open-mcp-portal at the v0.3.2 tag; the repository was
+ * called open-mcp-gateway until the rename): docs/releases/v0.3.2.md (the
+ * v0.3.2 card and the status card), docs/releases/v0.3.1.md (the v0.3.1
+ * card), docs/releases/v0.3.0.md (the v0.3.0 card), docs/releases/v0.2.2.md (the v0.2.2 card), docs/releases/v0.2.1.md (the
  * v0.2.1 card), docs/releases/v0.2.0.md (the
  * "New in v0.2.0" section), docs/threat-model.md,
  * docs/mcp-protocol.md, docs/admin-overview.md, docs/notifications.md,
@@ -601,8 +601,10 @@ function Features() {
 // site.previousVersion, not site.version), plus one card for the small
 // release after it, docs/releases/v0.2.1.md (site.patchVersion), one for the
 // hardening release, docs/releases/v0.2.2.md (site.hardeningVersion), one for
-// the agent-platform release, docs/releases/v0.3.0.md (site.agentVersion), and
-// one for the current release, docs/releases/v0.3.1.md (site.version). Claims and
+// the agent-platform release, docs/releases/v0.3.0.md (site.agentVersion), one
+// for the credentials and operations release, docs/releases/v0.3.1.md
+// (site.credentialsVersion), and one for the current release,
+// docs/releases/v0.3.2.md (site.version). Claims and
 // limits are the release notes' own; the "not yet tried" list is repeated in
 // the project status card.
 function NewInRelease() {
@@ -932,15 +934,15 @@ function NewInRelease() {
           <FeatureCard
             id="new-credentials"
             icon={<Activity className="size-5" />}
-            eyebrow={`Then ${site.version}`}
+            eyebrow={`Then ${site.credentialsVersion}`}
             title="Provider access lists, several credential parts, tracing"
             wide
             lead={
               <p>
-                {site.version} was published on October 20, 2026, the same day as {site.agentVersion}. It adds three migrations
+                {site.credentialsVersion} was published on October 20, 2026, the same day as {site.agentVersion}. It adds three migrations
                 (<code>00021</code> to <code>00023</code>), all expand-only. <Strong>Nothing changes for existing providers or
                 servers until an admin opts in,</Strong> but existing auth providers stay open to every team, so read its{" "}
-                <TextLink href={site.releaseNotesUrl}>release notes</TextLink> before you upgrade.
+                <TextLink href={site.credentialsReleaseNotesUrl}>release notes</TextLink> before you upgrade.
               </p>
             }
             bullets={[
@@ -977,6 +979,56 @@ function NewInRelease() {
                 Not run against a real provider (including Microsoft&apos;s refresh with a scope), a real third-party server
                 that wants Basic or a query key, or a real OpenTelemetry collector or Tempo, and the dashboards&apos; queries
                 were not checked against live data.
+              </>
+            }
+          />
+
+          {/* docs/releases/v0.3.2.md "What changed", "Upgrading", "Verification" and "Known limitations"; docs/person-secrets.md, docs/machine-oauth.md, docs/registry.md */}
+          <FeatureCard
+            id="new-upstream-auth"
+            icon={<Key className="size-5" />}
+            eyebrow={`Then ${site.version}`}
+            title="Each person's own key, the portal's own OAuth client, mTLS with a private CA"
+            wide
+            lead={
+              <p>
+                {site.version} was published on October 20, 2026, the same day as {site.credentialsVersion}. It adds three
+                migrations (<code>00024</code> to <code>00026</code>), all expand-only. <Strong>Nothing changes for existing
+                servers;</Strong> each feature is something a team opts into on a server. Read its{" "}
+                <TextLink href={site.releaseNotesUrl}>release notes</TextLink> before you upgrade.
+              </p>
+            }
+            bullets={[
+              <>
+                <Strong>Each person&apos;s own key.</Strong> Every person pastes their own API key or token for a server once.
+                It is sealed per person and server, shown only as a hint, revocable, and sent as a header, a bearer token or
+                a query-string key. A new origin, or a change of where the key goes, deletes everyone&apos;s keys. An agent&apos;s
+                call uses a key only if that person allowed agents (off by default). Scheduled health checks send no key.{" "}
+                <TextLink href={site.personSecretsUrl}>Person keys</TextLink>
+              </>,
+              <>
+                <Strong>The portal&apos;s own OAuth client.</Strong> For a server that authenticates the portal itself, the
+                portal gets a token with the client-credentials grant and sends it as the bearer. Everyone who calls the
+                server shares that token, service accounts and agent calls included; the identity token moves to{" "}
+                <code>{site.headers.identity}</code>. The client secret is sealed and never shown.{" "}
+                <TextLink href={site.machineOAuthUrl}>Machine OAuth</TextLink>
+              </>,
+              <>
+                <Strong>mTLS and a private CA.</Strong> A server can present a client certificate and trust a private CA
+                instead of the system roots, for that server only. Host name verification is always on, with no way to skip
+                it, and TLS 1.2 is the minimum. Expiry shows on the server&apos;s health, the admin overview and as a{" "}
+                <code>key.expiring</code> notification.{" "}
+                <TextLink href={site.upstreamTlsUrl}>TLS to the server</TextLink>
+              </>,
+            ]}
+            note={
+              <>
+                Limits: a person&apos;s key is as safe as the server that receives it, and a query-string key is visible in
+                URLs. Client certificates are not used for sign-in metadata or token endpoints, so a server in OAuth mode
+                behind a private CA can&apos;t be set up yet; CRL and OCSP are not checked. Not run against a real
+                authorization server (Entra ID, Okta, Keycloak or Auth0), a real server that wants a per-person key or a
+                client certificate, or a real internal server behind a private CA; the person-key pages, the TLS card and
+                the expiry warnings were not looked at in a browser.
               </>
             }
           />
@@ -1380,7 +1432,7 @@ function OpenSource() {
               </p>
               <p>
                 {site.previousVersion} and {site.patchVersion} were both published on October 18, 2026, the day after v0.1.0,
-                and {site.hardeningVersion}, {site.agentVersion} and {site.version} on October 20. It is pre-1.0 software and hasn&apos;t run in production. Claude Code
+                and {site.hardeningVersion}, {site.agentVersion}, {site.credentialsVersion} and {site.version} on October 20. It is pre-1.0 software and hasn&apos;t run in production. Claude Code
                 2.1.280 has been run on the 2026-07-28 revision, with an API key and with its OAuth sign-in (discovery,
                 lists, tool calls and the consent link), and {site.version} runs on one real cluster (a CloudNativePG
                 database with continuous archiving and a tested restore). The Kubernetes manifests also pass a smoke test on
@@ -1388,10 +1440,13 @@ function OpenSource() {
                 against tokens from its real signing code and a fake issuer, not its gateway and runtime end to end), the one-time notice for a trusted client with the real Claude Code client
                 (an integration test covers the whole flow), a client that declares URL elicitation, VS Code and Cursor, a
                 real Google or Microsoft provider for delegated credentials (only GitHub has run end to end), email over
-                TLS to a real mail provider, and a real Slack webhook. Also not run: {site.version}&apos;s narrower tokens against a real provider
+                TLS to a real mail provider, and a real Slack webhook. Also not run: {site.credentialsVersion}&apos;s narrower tokens against a real provider
                 (including Microsoft&apos;s refresh with a scope), a real third-party server that wants Basic or a query key, and a real
                 OpenTelemetry collector or Tempo (a fake receiver stood in; the dashboards&apos; queries were not checked against live
-                data). Pilot it before you depend on it.
+                data). Also not run for {site.version}: a real authorization server (Entra ID, Okta, Keycloak or Auth0) for the portal&apos;s own OAuth client, a real
+                server that wants a per-person key or a client certificate, and a real internal server behind a private CA (tests used
+                throwaway CAs and test servers; the person-key pages, the TLS card and the expiry warnings were not looked at in a browser).
+                Pilot it before you depend on it.
               </p>
               <p>
                 Limits: remote servers only (no stdio); streaming covers the progress of a tool call, with no
@@ -1403,12 +1458,15 @@ function OpenSource() {
                 gateway; a person removed at the identity provider stays reachable through agents until suspended in the
                 portal; a server with Send identity off can&apos;t tell an agent&apos;s call from the person&apos;s; the smoke test doesn&apos;t cover ingress and TLS, OIDC, upgrades or restores;
                 a query-string credential travels in the URL, so servers, proxies and their logs may record it; narrowing a token is only as good as the provider&apos;s
-                support for a scope on refresh, and exemplars are not built; providers that existed before {site.version} stay open to every team until an admin restricts them;
+                support for a scope on refresh, and exemplars are not built; providers that existed before {site.credentialsVersion} stay open to every team until an admin restricts them;
+                a person&apos;s key is as safe as the server that receives it, and a query-string key is visible in URLs; everyone who calls a server that uses the portal&apos;s own OAuth client shares its token;
+                client certificates are not used for sign-in metadata or token endpoints (a server in OAuth mode behind a private CA can&apos;t be set up yet, and CRL and OCSP are not checked);
+                a team&apos;s static credential echoed back by its own server reaches the caller in the tool result;
                 audit export, split database roles and idle sessions are still open in the threat model.
                 Next on the{" "}
                 <TextLink href={site.roadmapUrl}>roadmap</TextLink> (an order of work, not a schedule; every item is a
                 GitHub issue with its implementation plan): a pilot with a real team, real-client checks and a run against a
-                live Pi Durable Platform first, then per-person secrets for servers that don&apos;t use OAuth, tool classification and
+                live Pi Durable Platform first, then team service connections for service accounts, tool classification and
                 scopes on credentials, and approval before sensitive calls.
               </p>
             </div>
