@@ -19,10 +19,11 @@ import { ButtonLink, CheckList, CodeBlock, Eyebrow, Note, SectionHeading, Strong
 import { site } from "@/lib/site";
 
 /*
- * Every claim here is checked against Open MCP Portal v0.2.2
- * (github.com/ncecere/open-mcp-portal at the v0.2.2 tag; the repository was
- * called open-mcp-gateway until the rename): docs/releases/v0.2.2.md (the
- * v0.2.2 card and the status card), docs/releases/v0.2.1.md (the
+ * Every claim here is checked against Open MCP Portal v0.3.0
+ * (github.com/ncecere/open-mcp-portal at the v0.3.0 tag; the repository was
+ * called open-mcp-gateway until the rename): docs/releases/v0.3.0.md (the
+ * v0.3.0 card and the status card), docs/releases/v0.2.2.md (the v0.2.2
+ * card), docs/releases/v0.2.1.md (the
  * v0.2.1 card), docs/releases/v0.2.0.md (the
  * "New in v0.2.0" section), docs/threat-model.md,
  * docs/mcp-protocol.md, docs/admin-overview.md, docs/notifications.md,
@@ -598,8 +599,9 @@ function Features() {
 
 // docs/releases/v0.2.0.md (this section describes that release, so it names
 // site.previousVersion, not site.version), plus one card for the small
-// release after it, docs/releases/v0.2.1.md (site.patchVersion), and one for
-// the current release, docs/releases/v0.2.2.md (site.version). Claims and
+// release after it, docs/releases/v0.2.1.md (site.patchVersion), one for the
+// hardening release, docs/releases/v0.2.2.md (site.hardeningVersion), and one
+// for the current release, docs/releases/v0.3.0.md (site.version). Claims and
 // limits are the release notes' own; the "not yet tried" list is repeated in
 // the project status card.
 function NewInRelease() {
@@ -817,14 +819,14 @@ function NewInRelease() {
           <FeatureCard
             id="new-hardening"
             icon={<Key className="size-5" />}
-            eyebrow={`Then ${site.version}`}
+            eyebrow={`Then ${site.hardeningVersion}`}
             title="A hardening release: public servers, sign-in, registration"
             wide
             lead={
               <p>
-                {site.version} was published on October 20, 2026. It adds two migrations, both expand-only, and two things to plan
+                {site.hardeningVersion} was published on October 20, 2026. It adds two migrations, both expand-only, and two things to plan
                 for: OAuth apps sign in again about every 180 days, and a new default applies to servers you register from
-                now on. Read its <TextLink href={site.releaseNotesUrl}>release notes</TextLink> before you upgrade.
+                now on. Read its <TextLink href={site.hardeningReleaseNotesUrl}>release notes</TextLink> before you upgrade.
               </p>
             }
             bullets={[
@@ -858,6 +860,69 @@ function NewInRelease() {
                 run with the real Claude Code client. Open in the{" "}
                 <TextLink href={site.threatModelUrl}>threat model</TextLink>: per-provider allow-lists, audit export, split
                 database roles and idle sessions.
+              </>
+            }
+          />
+
+          {/* docs/releases/v0.3.0.md "What changed", "Upgrading", "Verification" and "Known limitations" */}
+          <FeatureCard
+            id="new-agents"
+            icon={<Shield className="size-5" />}
+            eyebrow={`Then ${site.version}`}
+            title="Agent-platform trust: an agent's call as the person's call"
+            wide
+            lead={
+              <p>
+                {site.version} was published on October 20, 2026, the same day as {site.hardeningVersion}. The portal can now
+                trust an external agent platform, the first being Pi Durable Platform, to say which person an agent is acting
+                for, and then treats the agent&apos;s calls as that person&apos;s, within strict limits. It adds one
+                migration, <code>00020</code>, which is expand-only, and stops reading the old sign-in cookie name, as{" "}
+                {site.hardeningVersion} announced. <Strong>Nothing changes until a platform admin adds a trusted platform and
+                marks a relay service account.</Strong> Read its{" "}
+                <TextLink href={site.releaseNotesUrl}>release notes</TextLink> before you upgrade.
+              </p>
+            }
+            bullets={[
+              <>
+                <Strong>Trusted agent platforms and relay accounts.</Strong> A platform admin trusts a platform as an issuer
+                of short-lived signed identity tokens (its issuer, its keys address over https, the audience the portal
+                expects; ES256 only) and marks one team service account as its relay. A call on that account that carries
+                a valid token naming a person is that person&apos;s call: their access <em>intersected with</em> the
+                relay&apos;s (the lower role decides), their own delegated credentials, and their name in the call log with
+                the agent and the platform named. A token is single-use, and a person who is suspended or removed loses
+                access through agents on the next call.
+              </>,
+              <>
+                <Strong>Agents never get a consent link.</Strong> A relayed call that needs a connection the person hasn&apos;t
+                made returns a tool error that says where to connect. A person can allow a server from Account › My
+                connections, and a server or capability can require a present person, so work an agent does when nobody is
+                watching, such as scheduled work, is refused.
+              </>,
+              <>
+                <Strong>The server behind the gateway learns it was an agent.</Strong> The identity token carries an{" "}
+                <code>act</code> claim naming the agent on relayed person calls, and never otherwise.
+              </>,
+              <>
+                <Strong>What it does not do.</Strong> A token presented with any other credential is ignored and counted, a
+                bad token on a relay&apos;s request refuses the request, and a call that names no person stays the service
+                account&apos;s own. The new surfaces stay off until an admin configures them.
+              </>,
+              <>
+                <Strong>Checked</Strong> against 19 tokens and 5 key sets produced by Pi Durable Platform v0.4.0&apos;s own
+                signing code, and by an independent security review with no Critical or High findings, whose findings were
+                applied.
+              </>,
+            ]}
+            note={
+              <>
+                Limits: it has <Strong>not been run against a live Pi Durable Platform</Strong> (the manual check is in the
+                guide). A compromised platform signing key can speak as any person with a portal account, within the
+                relay&apos;s reach, using their delegated tokens. The token is bound to the platform-wide audience, not to a
+                relay or a gateway. A person removed at the identity provider stays reachable through agents until suspended in
+                the portal. A server with Send identity off receives the person&apos;s provider token and no{" "}
+                <code>act</code> claim. The relay control, the present-person switches and the Allow dialog were not looked at
+                in a browser.{" "}
+                <TextLink href={site.agentPlatformsUrl}>Administrator&apos;s guide</TextLink>
               </>
             }
           />
@@ -1261,11 +1326,12 @@ function OpenSource() {
               </p>
               <p>
                 {site.previousVersion} and {site.patchVersion} were both published on October 18, 2026, the day after v0.1.0,
-                and {site.version} on October 20. It is pre-1.0 software and hasn&apos;t run in production. Claude Code
+                and {site.hardeningVersion} and {site.version} on October 20. It is pre-1.0 software and hasn&apos;t run in production. Claude Code
                 2.1.280 has been run on the 2026-07-28 revision, with an API key and with its OAuth sign-in (discovery,
                 lists, tool calls and the consent link), and {site.version} runs on one real cluster (a CloudNativePG
                 database with continuous archiving and a tested restore). The Kubernetes manifests also pass a smoke test on
-                a kind cluster. Not verified yet: the one-time notice for a trusted client with the real Claude Code client
+                a kind cluster. Not verified yet: a run against a live Pi Durable Platform (the agent-platform trust was checked
+                against tokens from its real signing code and a fake issuer, not its gateway and runtime end to end), the one-time notice for a trusted client with the real Claude Code client
                 (an integration test covers the whole flow), a client that declares URL elicitation, VS Code and Cursor, a
                 real Google or Microsoft provider for delegated credentials (only GitHub has run end to end), email over
                 TLS to a real mail provider, and a real Slack webhook. Pilot it before you depend on it.
@@ -1275,12 +1341,15 @@ function OpenSource() {
                 server-pushed list changes or resource subscriptions; no sampling or roots relay; notifications are sent
                 by one loop on one replica at a time; a server that rejects the identity token only when a tool runs
                 passes Test connection; after its first confirmation a local process can still use a trusted client&apos;s ID
-                silently; the smoke test doesn&apos;t cover ingress and TLS, OIDC, upgrades or restores; per-provider
+                silently; a compromised agent-platform signing key can speak as any person with a portal account, within the
+                relay&apos;s reach, and the platform&apos;s token is bound to a platform-wide audience, not to a relay or a
+                gateway; a person removed at the identity provider stays reachable through agents until suspended in the
+                portal; a server with Send identity off can&apos;t tell an agent&apos;s call from the person&apos;s; the smoke test doesn&apos;t cover ingress and TLS, OIDC, upgrades or restores; per-provider
                 allow-lists, audit export, split database roles and idle sessions are still open in the threat model.
                 Next on the{" "}
                 <TextLink href={site.roadmapUrl}>roadmap</TextLink> (an order of work, not a schedule; every item is a
-                GitHub issue with its implementation plan): a pilot with a real team, real-client checks and a few open
-                decisions first, then per-person secrets for servers that don&apos;t use OAuth, tool classification and
+                GitHub issue with its implementation plan): a pilot with a real team, real-client checks and a run against a
+                live Pi Durable Platform first, then per-person secrets for servers that don&apos;t use OAuth, tool classification and
                 scopes on credentials, and approval before sensitive calls.
               </p>
             </div>
