@@ -16,24 +16,27 @@ import {
 } from "@/components/icons";
 import { Screenshot, type SlotName } from "@/components/Screenshot";
 import { ButtonLink, CheckList, CodeBlock, Eyebrow, Note, SectionHeading, Strong, TextLink } from "@/components/ui";
-import { site } from "@/lib/site";
+import { docs, site } from "@/lib/site";
 
 /*
- * Every claim here is checked against Open MCP Portal v0.3.2
- * (github.com/ncecere/open-mcp-portal at the v0.3.2 tag; the repository was
- * called open-mcp-gateway until the rename): docs/releases/v0.3.2.md (the
- * v0.3.2 card and the status card), docs/releases/v0.3.1.md (the v0.3.1
- * card), docs/releases/v0.3.0.md (the v0.3.0 card), docs/releases/v0.2.2.md (the v0.2.2 card), docs/releases/v0.2.1.md (the
- * v0.2.1 card), docs/releases/v0.2.0.md (the
- * "New in v0.2.0" section), docs/threat-model.md,
- * docs/mcp-protocol.md, docs/admin-overview.md, docs/notifications.md,
- * docs/automation-tokens.md, SPEC.md, docs/decisions.md,
- * docs/status.md, docs/registry.md, the "As built" sections of
- * docs/phase3-gateways.md to docs/phase7-upstream-oauth.md,
- * docs/upstream-identity.md, docs/connect-clients.md, docs/deploy.md,
- * examples/mail-mcp/README.md, the Makefile and the screen names in web/src.
- * Keep it that way: nothing on this page may describe a feature that isn't
- * built. Planned work is named as planned, in the project status card.
+ * Every claim here is checked against Open MCP Portal v0.13.1
+ * (github.com/ncecere/open-mcp-portal at the v0.13.1 tag; the repository was
+ * called open-mcp-gateway until the rename): docs/releases/v0.3.3.md to
+ * docs/releases/v0.13.1.md and CHANGELOG.md (the "New since v0.3.2" section),
+ * docs/status.md and docs/roadmap.md (the status card), docs/threat-model.md,
+ * docs/mcp-protocol.md, docs/mcp-tasks.md, docs/admin-overview.md,
+ * docs/notifications.md, docs/automation-tokens.md, docs/cli.md,
+ * docs/tool-classification.md, docs/credential-scopes.md,
+ * docs/gateway-curation.md, docs/tool-approvals.md, docs/access-requests.md,
+ * docs/service-connections.md, docs/upstream-protection.md,
+ * docs/upstream-failover.md, docs/scim.md, SPEC.md, docs/decisions.md,
+ * docs/registry.md, the "As built" sections of docs/phase3-gateways.md to
+ * docs/phase7-upstream-oauth.md, docs/upstream-identity.md,
+ * docs/connect-clients.md, docs/deploy.md, examples/mail-mcp/README.md, the
+ * Makefile and the screen names in web/src. External agent platforms and
+ * person impersonation were retired in v0.4.0 (decision 81) and are not
+ * described. Keep it that way: nothing on this page may describe a feature
+ * that isn't built. Planned work is named as planned, in the project status card.
  */
 
 const gatewayUrl = `https://${site.exampleHost}/mcp/support`;
@@ -45,7 +48,7 @@ export default function Home() {
       <Problem />
       <HowItWorks />
       <Features />
-      <NewInRelease />
+      <SinceRelease />
       <Connect />
       <ServerAuthors />
       <Screenshots />
@@ -89,7 +92,8 @@ function Hero() {
           <p className="mt-6 max-w-xl text-lg leading-relaxed text-brand-muted">
             Open MCP Portal ({site.shortName}) is where your teams register the MCP servers they build, publish them to
             a reviewed company catalog, and combine their tools into gateways. People and agents connect to a gateway
-            with one URL, under your own sign-in, and see only what they may use.
+            with one URL, under your own sign-in, and see only what they may use. Sensitive calls can wait for a
+            person&apos;s approval.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <ButtonLink href={site.docsUrl}>
@@ -187,10 +191,10 @@ function FlowArrow() {
 
 // SPEC §6 and docs/phase3-gateways.md "As built": the checks on every call.
 const portalSteps: { title: string; body: string }[] = [
-  { title: "Sign in", body: "An OAuth access token bound to this gateway, a personal API key or a service account key." },
-  { title: "Allow", body: "Access to the gateway, the tool selected in it, the minimum role, the server enabled (and, from the catalog, published and approved), the rate limit." },
-  { title: "Vouch", body: "A short-lived signed identity token, and the person's own token where a tool needs one." },
-  { title: "Forward", body: "To the server over Streamable HTTP, through an address guard and your internal-network allowlist." },
+  { title: "Sign in", body: "An OAuth access token bound to this gateway, a personal API key or a service account key, each optionally limited to a tool scope." },
+  { title: "Allow", body: "Access to the gateway, the tool selected in it and within the credential's scope, the minimum role, the server enabled, under the gateway's sensitivity ceiling and not retired (from the catalog, published and approved), the rate limits. A rule can hold the exact call for a person's approval." },
+  { title: "Vouch", body: "A short-lived signed identity token, and the person's own token, or a team's shared connection for a service account, where a tool needs one." },
+  { title: "Forward", body: "To the server over Streamable HTTP, through an address guard and your internal-network allowlist, within the server's quota and concurrency cap; reads can retry, and calls can move to an additional endpoint." },
   { title: "Record", body: "Who called what, the outcome and the latency. Arguments and results only where a team opted in." },
 ];
 
@@ -200,8 +204,9 @@ function HowItWorks() {
       <div className="container-page">
         <SectionHeading id="how-title" eyebrow="How it works" title="Clients in front, your MCP servers behind, rules in between">
           <p>
-            Teams register servers and the portal reads what they offer. Admins publish them to the catalog. Gateways
-            pick the tools a group of people needs, and every call through a gateway takes the same path.
+            Teams register servers, the portal reads what they offer, and the teams classify each tool as read, write
+            or destructive. Admins publish them to the catalog. Gateways pick the tools a group of people needs, and
+            every call through a gateway takes the same path.
           </p>
         </SectionHeading>
 
@@ -238,7 +243,7 @@ function HowItWorks() {
                 ))}
               </ol>
               <p className="mt-4 border-t border-brand-border pt-3 text-xs text-brand-subtle">
-                Registry, catalog, gateways and records in PostgreSQL · web UI for teams and admins
+                Registry, catalog, gateways and records in PostgreSQL · web UI for teams and admins · omp CLI for CI
               </p>
             </div>
 
@@ -326,8 +331,9 @@ function Features() {
       <div className="container-page">
         <SectionHeading id="features-title" eyebrow="Features" title="From a team's server to a governed tool call">
           <p>
-            {site.shortName} is one installation for one company. Teams own their servers and gateways; platform admins
-            set the rules, review what is published and see everything; platform auditors see the same, read-only.
+            {site.shortName} is one installation for one company. Teams own their servers and gateways and answer for
+            them; platform admins set the rules, review what is published and see everything; platform auditors see the
+            same, read-only.
           </p>
         </SectionHeading>
 
@@ -355,12 +361,17 @@ function Features() {
                 approval.
               </>,
               <>
+                <Strong>Tool classes</Strong> set by the team&apos;s owners and admins: read, write or destructive. The
+                server&apos;s annotations only suggest one; tool scopes, approval rules and retries rely on the class.
+              </>,
+              <>
                 <Strong>Health checks</Strong> every five minutes by default, with the error class and a
                 &ldquo;failing since&rdquo; time.
               </>,
               <>
-                <Strong>A static header</Strong> such as an API key can be stored per server, encrypted, and shown only
-                as its last four characters.
+                <Strong>The server&apos;s own credential:</Strong> headers, a bearer token, Basic auth or a query key,
+                each person&apos;s own key, the portal&apos;s own OAuth client, or a client certificate and a private CA.
+                Values are sealed and never shown again.
               </>,
             ]}
             note={<>Servers are remote, reached over Streamable HTTP. The portal doesn&apos;t host or run MCP servers.</>}
@@ -384,14 +395,25 @@ function Features() {
                 per team, so a trusted team can publish on its own.
               </>,
               <>
-                <Strong>Back to review</Strong>, under approval required, when a published server changes its URL,
-                starts asking people to sign in, or asks for wider access.
+                <Strong>Back to review</Strong>, under approval required, when a published server changes its URL or
+                additional endpoints, starts asking people to sign in, asks for wider access, lowers a tool&apos;s class,
+                raises its sensitivity or moves to another team.
               </>,
               <>
                 <Strong>Descriptions are treated as untrusted text:</Strong> a model will read them, so reviewers see
                 them before approving. Tool annotations are shown as hints and never used for authorization.
               </>,
+              <>
+                <Strong>Search</Strong> by server, team or approved capability. Deprecated servers carry a banner
+                naming their replacement and the day they stop being served.
+              </>,
             ]}
+            note={
+              <>
+                Owners, sensitivity labels, re-review and transfers are described{" "}
+                <a href="#since-governance" className="font-medium text-brand-link underline underline-offset-2 hover:text-brand-link-hover">below</a>.
+              </>
+            }
           />
 
           {/* docs/phase3-gateways.md, decisions 13, 16, 17 */}
@@ -415,7 +437,12 @@ function Features() {
               </>,
               <>
                 <Strong>Platform gateways</Strong> are curated by platform admins and granted to teams, people or SSO
-                groups from your identity provider.
+                groups from your identity provider, permanently or until a date. People can request access where an
+                admin allows it.
+              </>,
+              <>
+                <Strong>Curated per gateway:</Strong> rename a tool, rewrite its description, fix an argument or allow
+                only listed values, without changing the approved definition.
               </>,
               <>
                 <Strong>A minimum team role</Strong> per tool on team gateways: members might read, while only editors
@@ -430,7 +457,12 @@ function Features() {
                 or unpublishing a server takes effect at the next request.
               </>,
               <>
-                <Strong>Limits per gateway:</Strong> a rate limit per minute, and a switch to record call contents.
+                <Strong>Settings per gateway:</Strong> a rate limit per minute, a sensitivity ceiling, and a switch to
+                record call contents.
+              </>,
+              <>
+                <Strong>Approval rules</Strong> on a gateway or a server hold sensitive calls until a person approves
+                that exact call.
               </>,
             ]}
           />
@@ -453,16 +485,20 @@ function Features() {
                 connection is bound to one gateway; self-registered apps are marked unverified.
               </>,
               <>
-                <Strong>Consent per person, app and gateway.</Strong> Apps your admins trust (Claude, Claude Code and VS
-                Code out of the box) skip the consent page. People see and disconnect their apps under Connected apps.
+                <Strong>Consent per person, app and gateway,</Strong> showing the tool scope the app asks for, which the
+                person can narrow. Apps your admins trust (Claude, Claude Code and VS Code out of the box) skip the
+                consent page. People see and disconnect their apps under Connected apps.
               </>,
               <>
                 <Strong>Personal API keys</Strong> for scripts and clients that can&apos;t open a browser, optionally
-                limited to some gateways, with an expiry of up to a year.
+                limited to some gateways and to a tool scope, with an expiry of up to a year.
               </>,
               <>
                 <Strong>Service accounts</Strong> for agents and CI that must not depend on one person: owned by a team,
-                with a member or editor role and up to two active keys, so they rotate without downtime.
+                with a member or editor role, a tool ceiling and up to two active keys, so they rotate without downtime.
+              </>,
+              <>
+                <Strong>Browser sessions</Strong> listed under Account › Sessions, to sign out one or all of them.
               </>,
             ]}
           />
@@ -493,14 +529,18 @@ function Features() {
                 allowed.
               </>,
               <>
-                <Strong>A link, not an error:</Strong> the first call answers with a one-time link (JSON-RPC{" "}
-                <code>-32042</code> for clients on earlier revisions; see New in {site.previousVersion} for 2026-07-28) to a
-                page that names the tool, the gateway and every scope. It works only for that person, once, for 10
-                minutes.
+                <Strong>A link, not an error:</Strong> the first call answers with a one-time link (an{" "}
+                <code>input_required</code> question for 2026-07-28 clients that declare URL elicitation, JSON-RPC{" "}
+                <code>-32042</code> for earlier revisions) to a page that names the tool, the gateway and every scope. It
+                works only for that person, once, for 10 minutes.
               </>,
               <>
                 <Strong>Kept fresh, easy to revoke:</Strong> tokens are encrypted at rest and refreshed by the portal.
                 People disconnect under My connections; admins can revoke anyone&apos;s.
+              </>,
+              <>
+                <Strong>Shared connections for service accounts:</Strong> a team&apos;s owners and admins connect an
+                account for its agents and CI and allow it per server. A person&apos;s own connection is never lent out.
               </>,
             ]}
           />
@@ -520,15 +560,16 @@ function Features() {
             }
             bullets={[
               <>
-                <Strong>A JWT per call</Strong>, ES256, valid for five minutes, with the audience set to the server&apos;s
-                own URL, so it can&apos;t be replayed elsewhere.
+                <Strong>A JWT per call</Strong>, ES256, valid for five minutes, with the audience set to the URL it is
+                sent to, so it can&apos;t be replayed elsewhere.
               </>,
               <>
                 <Strong>Keys at</Strong> <code>/.well-known/jwks.json</code>, rotated every 30 days, with the next key
                 published a day before it signs.
               </>,
               <>
-                <Strong>People and service accounts</Strong> are told apart, with email and teams for people.
+                <Strong>People and service accounts</Strong> are told apart, with email and teams for people, and the
+                tool&apos;s class where its team set one.
               </>,
               <>
                 <Strong>Off for outside servers:</Strong> a per-server switch sends no identity to servers run outside the
@@ -542,11 +583,77 @@ function Features() {
             }
           />
 
+          {/* docs/mcp-protocol.md, docs/mcp-tasks.md */}
+          <FeatureCard
+            id="feature-protocol"
+            icon={<Plug className="size-5" />}
+            eyebrow="Protocol"
+            title="MCP 2026-07-28, next to every older revision"
+            lead={
+              <p>
+                Gateways speak the 2026-07-28 revision alongside 2024-11-05, 2025-03-26, 2025-06-18 and 2025-11-25,
+                chosen per request, so one gateway serves old and new clients at once.
+              </p>
+            }
+            bullets={[
+              <>
+                <Strong>Toward your servers</Strong> the portal tries 2026-07-28 first and falls back to{" "}
+                <code>initialize</code>, and shows the answer on the server&apos;s page.
+              </>,
+              <>
+                <Strong>Relayed:</Strong> a server&apos;s elicitation questions to a client that can answer them, a
+                call&apos;s progress as server-sent events, and trace headers.
+              </>,
+              <>
+                <Strong>Tasks</Strong> for long-running tools, for 2026-07-28 clients and servers that support the
+                extension.
+              </>,
+            ]}
+            note={<TextLink href={site.mcpProtocolUrl}>MCP protocol</TextLink>}
+          />
+
+          {/* docs/admin-overview.md, docs/notifications.md, docs/automation-tokens.md, docs/cli.md, docs/deploy.md "Tracing" */}
+          <FeatureCard
+            id="feature-operations"
+            icon={<Layers className="size-5" />}
+            eyebrow="Operations"
+            title="What needs attention, and who hears about it"
+            lead={
+              <p>
+                Platform admins land on an Overview of what needs attention across the portal; each team has the same
+                for itself, from failing servers to calls waiting for approval.
+              </p>
+            }
+            bullets={[
+              <>
+                <Strong>Notifications</Strong> in the portal, by email through your SMTP server, or to signed and
+                Slack-compatible webhooks, with personal preferences per event.
+              </>,
+              <>
+                <Strong>Automation tokens</Strong> for the management API under <code>/v1</code> and the{" "}
+                <code>omp</code> CLI: platform tokens, and team publisher tokens that register, refresh and publish a
+                team&apos;s servers. Never valid on <code>/mcp</code>.
+              </>,
+              <>
+                <Strong>OpenTelemetry tracing</Strong> (off until you set an endpoint), Prometheus metrics, Grafana
+                dashboards and alert rules.
+              </>,
+            ]}
+            note={
+              <>
+                <TextLink href={site.adminOverviewUrl}>Admin overview</TextLink> &middot;{" "}
+                <TextLink href={site.notificationsUrl}>Notifications</TextLink> &middot;{" "}
+                <TextLink href={site.automationTokensUrl}>Automation tokens</TextLink> &middot;{" "}
+                <TextLink href={site.tracingUrl}>Tracing</TextLink>
+              </>
+            }
+          />
+
           {/* docs/phase6-operations.md "As built" */}
           <FeatureCard
-            id="feature-governance"
+            id="feature-records"
             icon={<Activity className="size-5" />}
-            eyebrow="Governance"
+            eyebrow="Records and limits"
             title="Audit, limits and records you can answer for"
             wide
             lead={
@@ -561,12 +668,12 @@ function Features() {
                 consents and connections. Never a secret or a token.
               </>,
               <>
-                <Strong>Call records</Strong> with the caller, the client, the gateway, server and tool, the outcome,
-                latency and sizes; teams see calls through their gateways and to their servers.
+                <Strong>Call records</Strong> with the caller, the client, the gateway, server and tool, the tool&apos;s
+                class, the outcome, latency and sizes; teams see calls through their gateways and to their servers.
               </>,
               <>
-                <Strong>Rate limits</Strong> per person, credential, service account and gateway, with ceilings and team
-                overrides, counted in PostgreSQL and shared by every replica.
+                <Strong>Rate limits</Strong> per person, credential, service account, gateway and upstream server, with
+                ceilings and team overrides, counted in PostgreSQL and shared by every replica.
               </>,
               <>
                 <Strong>Opt-in payload capture</Strong> per gateway or server: arguments and results, redacted by built-in
@@ -595,443 +702,326 @@ function Features() {
   );
 }
 
-/* ------------------------------------------------------- New in v0.2.0 */
+/* ------------------------------------------------------- Since v0.3 */
 
-// docs/releases/v0.2.0.md (this section describes that release, so it names
-// site.previousVersion, not site.version), plus one card for the small
-// release after it, docs/releases/v0.2.1.md (site.patchVersion), one for the
-// hardening release, docs/releases/v0.2.2.md (site.hardeningVersion), one for
-// the agent-platform release, docs/releases/v0.3.0.md (site.agentVersion), one
-// for the credentials and operations release, docs/releases/v0.3.1.md
-// (site.credentialsVersion), and one for the current release,
-// docs/releases/v0.3.2.md (site.version). Claims and
-// limits are the release notes' own; the "not yet tried" list is repeated in
-// the project status card.
-function NewInRelease() {
+// What shipped between site.sinceVersion (v0.3.2) and site.version, one card
+// per user- or operator-facing feature, grouped by theme. Each names the
+// release it came in (docs/releases/v0.3.3.md to v0.13.1.md, CHANGELOG.md) and
+// links its page on the docs site. Sources per card: docs/tool-classification.md,
+// docs/credential-scopes.md, docs/gateway-curation.md, docs/tool-approvals.md,
+// docs/access-requests.md, docs/registry.md "Governance", docs/upstream-protection.md,
+// docs/upstream-failover.md, docs/mcp-tasks.md, docs/threat-model.md BR-1,
+// docs/service-connections.md, docs/cli.md, integrations/github-action/README.md,
+// docs/scim.md, docs/releases/v0.13.0.md. Unshipped work (audit-evidence export,
+// content scanning, key providers, the Terraform provider) is not a card.
+
+type Shipped = { title: string; release: string; body: ReactNode; href: string; link: string };
+
+const releaseDocs = (release: string) => docs(`releases/${release.replaceAll(".", "-")}`);
+
+const shippedThemes: { id: string; title: string; lead: string; items: Shipped[] }[] = [
+  {
+    id: "since-governance",
+    title: "Governance",
+    lead: "Decide what each credential may call, what needs a person's approval, who may ask for access and who answers for each server.",
+    items: [
+      {
+        title: "Owner-set tool classes",
+        release: "v0.3.3",
+        body: (
+          <>
+            A server&apos;s team owners and admins mark each tool read, write or destructive. The server&apos;s own
+            annotations only suggest a class. Where publishing needs approval, lowering a class sends a published server
+            back to review.
+          </>
+        ),
+        href: docs("teams/capabilities"),
+        link: "Capabilities",
+      },
+      {
+        title: "Tool scopes on credentials",
+        release: "v0.4.0",
+        body: (
+          <>
+            Limit an API key, a service account and its keys, a platform gateway grant or an OAuth sign-in to tool
+            classes or exact tool names: read only, for example. A scope only narrows access; prompts and resources are
+            unaffected.
+          </>
+        ),
+        href: docs("use/tool-scopes"),
+        link: "Tool scopes",
+      },
+      {
+        title: "Tool curation per gateway",
+        release: "v0.4.0",
+        body: (
+          <>
+            Rename a tool for one gateway, rewrite its description, fix an argument or allow only listed values. The
+            approved definition is kept; when it changes, the tool is withheld until an owner saves the policy again.
+          </>
+        ),
+        href: docs("teams/curating-gateway-tools"),
+        link: "Curating gateway tools",
+      },
+      {
+        title: "Approval of sensitive calls",
+        release: "v0.5.0",
+        body: (
+          <>
+            Rules on a server or gateway hold matching calls until a named person, an SSO group or the server&apos;s team
+            approves that exact call: same arguments, tool definition and caller. Nobody approves their own request, and
+            an approval is used once, within 15 minutes by default.
+          </>
+        ),
+        href: docs("use/approvals"),
+        link: "Approvals",
+      },
+      {
+        title: "Gateway access requests",
+        release: "v0.6.0",
+        body: (
+          <>
+            Platform admins can let people request a platform gateway, for themselves or a team they run, with a
+            reason. Admins and named stewards decide; a grant can expire after 1 to 365 days.
+          </>
+        ),
+        href: docs("administer/access-requests"),
+        link: "Access requests",
+      },
+      {
+        title: "Accountable owners",
+        release: "v0.10.0",
+        body: (
+          <>
+            Each server can name an accountable person and an on-call contact. A person who registers a server becomes
+            its owner, and a published server nobody answers for shows up as needing attention.
+          </>
+        ),
+        href: docs("teams/server-governance"),
+        link: "Server governance",
+      },
+      {
+        title: "Sensitivity labels and gateway ceilings",
+        release: "v0.10.0",
+        body: (
+          <>
+            Label a server public, internal, confidential or restricted, and confirm it. A gateway whose ceiling is lower
+            doesn&apos;t serve it, even from its own team. Where publishing needs approval, raising a published
+            server&apos;s label sends it back to review.
+          </>
+        ),
+        href: docs("teams/server-governance"),
+        link: "Server governance",
+      },
+      {
+        title: "Lifecycle, re-review and transfers",
+        release: "v0.10.0",
+        body: (
+          <>
+            Deprecate a server with a sunset date and a replacement; after the sunset no gateway serves it. Platform
+            admins set re-review intervals per label. A team offers a server to another team, whose owner accepts it.
+          </>
+        ),
+        href: docs("teams/server-governance"),
+        link: "Server governance",
+      },
+    ],
+  },
+  {
+    id: "since-reliability",
+    title: "Reliability",
+    lead: "Protect your servers from the traffic of every gateway at once, and keep calls working when one endpoint fails.",
+    items: [
+      {
+        title: "Per-server quotas and concurrency",
+        release: "v0.7.0",
+        body: (
+          <>
+            A server&apos;s team owners and admins set forwarded attempts per minute, shared by every gateway, caller and
+            replica, and a cap on concurrent operations per replica. Over a limit, the call is refused with{" "}
+            <code>429</code> at once; nothing queues.
+          </>
+        ),
+        href: docs("teams/protection-and-failover"),
+        link: "Protection and failover",
+      },
+      {
+        title: "Read retries and circuit breaking",
+        release: "v0.7.0",
+        body: (
+          <>
+            Tools classified read, prompts and resources are retried at most twice within the original timeout; writes
+            never are. After five failures in a row, a replica stops sending to that server for 30 seconds, then tries
+            one call.
+          </>
+        ),
+        href: docs("teams/protection-and-failover"),
+        link: "Protection and failover",
+      },
+      {
+        title: "Ordered endpoint failover",
+        release: "v0.8.0",
+        body: (
+          <>
+            Up to two additional endpoints, in order, for a server with no sign-in or a static credential, each with its
+            own credential entered for it. Reads move on after a 502, 503 or 504; writes only when the connection failed
+            before the request was sent. Calls held for approval always use the primary.
+          </>
+        ),
+        href: docs("teams/protection-and-failover"),
+        link: "Protection and failover",
+      },
+      {
+        title: "The MCP Tasks relay",
+        release: "v0.9.0",
+        body: (
+          <>
+            A 2026-07-28 client that declares the Tasks extension gets a task handle for a long-running tool on a server
+            that supports it, then polls, answers or cancels it through the gateway. Not for calls held for approval or
+            streamed.
+          </>
+        ),
+        href: docs("server-authors/tasks"),
+        link: "Tasks",
+      },
+    ],
+  },
+  {
+    id: "since-identity",
+    title: "Identity and automation",
+    lead: "Control sign-ins, give service accounts the accounts their tools need, and run the portal from CI and your directory.",
+    items: [
+      {
+        title: "Browser sessions you can revoke",
+        release: "v0.3.3",
+        body: (
+          <>
+            Account › Sessions lists where you&apos;re signed in; sign out one browser or every one. Platform admins can
+            end a person&apos;s sessions, and an optional idle timeout ends unused ones.
+          </>
+        ),
+        href: docs("use/sessions"),
+        link: "Sessions",
+      },
+      {
+        title: "Shared team service connections",
+        release: "v0.4.0",
+        body: (
+          <>
+            A team&apos;s owners and admins connect a shared account, assign it to service accounts and allow it for
+            named servers and scopes, so agents and CI can call tools that need an account. People&apos;s own connections
+            are never shared.
+          </>
+        ),
+        href: docs("teams/service-connections"),
+        link: "Service connections",
+      },
+      {
+        title: "The omp CLI and a Go client",
+        release: "v0.10.0",
+        body: (
+          <>
+            Signed binaries for Linux, macOS and Windows on every release: print connect snippets, register, test,
+            refresh and publish a team&apos;s servers, and export or plan configuration. Automation tokens only; the
+            public Go client <code>pkg/ompclient</code> is what it is built on.
+          </>
+        ),
+        href: docs("api/cli"),
+        link: "The omp CLI",
+      },
+      {
+        title: "A GitHub Action",
+        release: "v0.11.0",
+        body: (
+          <>
+            In the repository, under <code>integrations/github-action</code>: registers or refreshes a team&apos;s server
+            on every deploy with a team publisher token, and can request publication. Pin it to a reviewed commit.
+          </>
+        ),
+        href: docs("api/github-action"),
+        link: "GitHub Action",
+      },
+      {
+        title: "SCIM 2.0 provisioning",
+        release: "v0.12.0",
+        body: (
+          <>
+            Your identity provider creates, updates, deactivates and deletes people and groups, and directory groups can
+            map to team roles. Deactivation suspends at once; deletion removes sessions, grants and connections and
+            revokes API keys.
+          </>
+        ),
+        href: docs("administer/provisioning"),
+        link: "Provisioning",
+      },
+      {
+        title: "Catalog search",
+        release: "v0.13.0",
+        body: (
+          <>
+            The catalog&apos;s search also matches the names, titles and descriptions of each server&apos;s approved
+            capabilities, as typed, besides its name, team and description.
+          </>
+        ),
+        href: docs("teams/publishing#the-catalog"),
+        link: "The catalog",
+      },
+    ],
+  },
+];
+
+function ShippedCard({ item }: { item: Shipped }) {
+  return (
+    <li className="flex min-w-0 flex-col rounded-card border border-brand-border bg-brand-surface p-5">
+      <div className="flex items-start justify-between gap-3">
+        <h4 className="text-base font-semibold text-brand-text">{item.title}</h4>
+        <a
+          href={releaseDocs(item.release)}
+          aria-label={`Release notes for ${item.release}`}
+          className="shrink-0 rounded-full bg-brand-primary-subtle px-2 py-0.5 text-xs font-medium text-brand-primary-subtle-text hover:underline"
+        >
+          {item.release}
+        </a>
+      </div>
+      <p className="mt-2 flex-1 text-sm leading-relaxed text-brand-muted">{item.body}</p>
+      <p className="mt-3 text-sm">
+        <TextLink href={item.href}>{item.link}</TextLink>
+      </p>
+    </li>
+  );
+}
+
+function SinceRelease() {
   return (
     <section id="new" aria-labelledby="new-title" className="scroll-mt-16 border-t border-brand-border bg-brand-surface-sunken py-20 sm:py-24">
       <div className="container-page">
-        <SectionHeading id="new-title" eyebrow={`New in ${site.previousVersion}`} title="The newest MCP revision, and what a pilot needs to run it">
+        <SectionHeading id="new-title" eyebrow={`New since ${site.sinceVersion}`} title="Tool policy, protected servers and automation">
           <p>
-            {site.previousVersion} adds support for the MCP 2026-07-28 revision, an admin overview, notifications and automation
-            tokens, and fixes the issues found in a security review of v0.1.0. Read the{" "}
-            <TextLink href={site.previousReleaseNotesUrl}>release notes</TextLink> before you upgrade from v0.1.0: it adds
-            migrations, and people consent once per server.
+            Fourteen releases, from v0.3.3 to {site.version}, add owner-set tool classes, scoped credentials, approval of
+            sensitive calls and server governance, protection for your servers, and ways to run the portal from CI and
+            your directory. Existing tools start unclassified, existing credentials unrestricted, and nothing needs approval
+            until someone writes a rule.
+          </p>
+          <p>
+            Upgrading from v0.3? Read the <TextLink href={releaseDocs("v0.4.0")}>v0.4.0 notes</TextLink> first: it has
+            breaking changes. Every release is listed in the <TextLink href={docs("releases")}>release notes</TextLink>.
           </p>
         </SectionHeading>
 
-        <div className="mt-12 grid gap-6 lg:grid-cols-2">
-          {/* docs/releases/v0.2.0.md "MCP 2026-07-28, and every older revision"; docs/mcp-protocol.md */}
-          <FeatureCard
-            id="new-protocol"
-            icon={<Network className="size-5" />}
-            eyebrow="Protocol"
-            title="MCP 2026-07-28, next to every older revision"
-            wide
-            lead={
-              <p>
-                Gateways speak the 2026-07-28 revision alongside 2024-11-05, 2025-03-26, 2025-06-18 and 2025-11-25. The
-                revision is chosen per request, so one gateway serves old and new clients at once, and an older client
-                sees exactly what it saw before.
-              </p>
-            }
-            bullets={[
-              <>
-                <Strong>Toward clients:</Strong> <code>server/discover</code>, the required request headers checked against the
-                body, and lists marked private to the person, because they differ per person.
-              </>,
-              <>
-                <Strong>&ldquo;Connect your account&rdquo; as a question:</Strong> a client that declares URL elicitation gets
-                the consent link as an <code>input_required</code> result. Other 2026-07-28 clients get a tool error with
-                the link in the text; older clients keep <code>-32042</code>.
-              </>,
-              <>
-                <Strong>Toward your servers:</Strong> the portal tries 2026-07-28 first, falls back to{" "}
-                <code>initialize</code> by the specification&apos;s rule, and shows the answer on the server&apos;s page.
-              </>,
-              <>
-                <Strong>Relayed and streamed:</Strong> an upstream server&apos;s elicitation requests reach a client that
-                can answer them, a call&apos;s progress streams as server-sent events when the client asks, and trace
-                headers are passed through.
-              </>,
-            ]}
-            note={
-              <>
-                Exercised with the official conformance suite, curl and the Go SDK client; the failures that remain are
-                by design. Claude Code 2.1.280 has been run on the new revision (discovery, lists, tool calls, the consent link); not yet VS Code or Cursor.{" "}
-                <TextLink href={site.mcpProtocolUrl}>MCP protocol</TextLink>
-              </>
-            }
-          />
-
-          {/* docs/releases/v0.2.0.md "For the pilot"; docs/admin-overview.md */}
-          <FeatureCard
-            id="new-overview"
-            icon={<Activity className="size-5" />}
-            eyebrow="Admin overview"
-            title="What needs attention, on one page"
-            lead={
-              <p>
-                Platform admins land on an Overview of what needs attention across the portal, with the numbers that
-                matter. Each team has the same for itself.
-              </p>
-            }
-            bullets={[
-              <>Failing servers, held-back changes, reviews waiting, expiring keys and lapsed sign-ins.</>,
-              <>Every item opens the screen where it is dealt with.</>,
-            ]}
-            note={<TextLink href={site.adminOverviewUrl}>Admin overview</TextLink>}
-          />
-
-          {/* docs/notifications.md */}
-          <FeatureCard
-            id="new-notifications"
-            icon={<Plug className="size-5" />}
-            eyebrow="Notifications"
-            title="In the portal, by email, or to a webhook"
-            lead={
-              <p>
-                Eight events, with personal preferences per event and channel. Team webhooks are managed by team owners and
-                admins, platform webhooks by platform admins.
-              </p>
-            }
-            bullets={[
-              <>
-                <Strong>A bell and inbox</Strong> in the portal.
-              </>,
-              <>
-                <Strong>Email</Strong> through your SMTP server: off until you set <code>SMTP_HOST</code>, and only to
-                addresses your identity provider reported as verified.
-              </>,
-              <>
-                <Strong>Webhooks:</Strong> signed JSON for your own receiver, or Slack-compatible. URLs are stored encrypted
-                and shown as a host only; they reach public https addresses unless the operator allows a network.
-              </>,
-            ]}
-            note={
-              <>
-                Email has been tested against a local mail sink, not yet a real provider over TLS.{" "}
-                <TextLink href={site.notificationsUrl}>Notifications</TextLink>
-              </>
-            }
-          />
-
-          {/* docs/automation-tokens.md */}
-          <FeatureCard
-            id="new-tokens"
-            icon={<Key className="size-5" />}
-            eyebrow="Automation tokens"
-            title="Tokens for CI, for the management API"
-            lead={
-              <p>
-                Platform tokens (read or provision) and team publisher tokens, which register, refresh and publish a
-                team&apos;s servers, for the management API under <code>/v1</code>.
-              </p>
-            }
-            bullets={[
-              <>
-                <Strong>Expiring and revocable in one click,</Strong> showing who made them and when they were last used.
-              </>,
-              <>
-                <Strong>Audited as the token,</Strong> and created and revoked only in a browser session.
-              </>,
-              <>
-                <Strong>Never on <code>/mcp</code>,</Strong> and MCP credentials never work on <code>/v1</code>.
-              </>,
-            ]}
-            note={<TextLink href={site.automationTokensUrl}>Automation tokens</TextLink>}
-          />
-
-          {/* docs/releases/v0.2.0.md "Security fixes"; docs/threat-model.md */}
-          <FeatureCard
-            id="new-security"
-            icon={<Shield className="size-5" />}
-            eyebrow="Security"
-            title="Fixes from a published threat model"
-            lead={
-              <p>
-                A review of v0.1.0 found four issues, all fixed in {site.previousVersion}. The{" "}
-                <TextLink href={site.threatModelUrl}>threat model</TextLink> is written for security reviewers.
-              </p>
-            }
-            bullets={[
-              <>
-                <Strong>Provider tokens go only to servers a person allowed,</Strong> at the address they had when allowed.
-                Moving a server to another host ends its permissions.
-              </>,
-              <>
-                <Strong>Approvals are bound to what the reviewer saw:</Strong> an approval of something that changed in
-                between is refused.
-              </>,
-              <>
-                <Strong>A stored header value is not sent to a new origin</Strong> unless the same change supplies a new
-                one, and a crafted sign-in redirect no longer leaves the site.
-              </>,
-            ]}
-            note={
-              <>
-                Upgrading: everyone consents once per server, and scripts that approve must send the digest they
-                reviewed. A person&apos;s provider token still carries every scope they granted that provider.
-              </>
-            }
-          />
-
-          {/* docs/releases/v0.2.1.md "What changed" and "Known limitations"; docs/registry.md, docs/deploy.md */}
-          <FeatureCard
-            id="new-patch"
-            icon={<Fingerprint className="size-5" />}
-            eyebrow={`Then ${site.patchVersion}`}
-            title="A small release: a truer Test, a registration cap, a smoke test"
-            wide
-            lead={
-              <p>
-                {site.patchVersion} followed {site.previousVersion} the same day. It has no migration and nothing you must change
-                to upgrade; read its <TextLink href={site.patchReleaseNotesUrl}>release notes</TextLink>.
-              </p>
-            }
-            bullets={[
-              <>
-                <Strong>Test connection exercises the identity token.</Strong> A manual Test sends the editor&apos;s identity
-                token when <Strong>Send identity token</Strong> is on, and fails with a clear message if the server
-                refuses it with <code>401</code> or <code>403</code> but accepts the request without it. Scheduled checks
-                and refresh send none.
-              </>,
-              <>
-                <Strong>A cap on open client registration.</Strong> <code>OAUTH_MAX_REGISTERED_CLIENTS</code> (default 1000,{" "}
-                <code>0</code> for no cap) bounds the clients that registered themselves and were used in the last 30 days;
-                over it, registration answers <code>503</code>. Clients that use a metadata document, such as Claude Code,
-                aren&apos;t counted.
-              </>,
-              <>
-                <Strong>A Kubernetes smoke test.</Strong> <code>make k8s-smoke</code> applies the Kustomize base to a
-                three-node kind cluster and checks the migrate init container, two replicas on different nodes, tool
-                calls in both protocol eras, a rolling update and a pod deletion with no failed request, the SIGTERM
-                drain and the disruption budget.
-              </>,
-            ]}
-            note={
-              <>
-                Limits: a server that rejects the token only when a tool runs still passes Test. The smoke test does not
-                cover ingress and TLS, OIDC, upgrades or restores, and it tests NetworkPolicy only with Calico.{" "}
-                <TextLink href={`${site.deployUrl}#smoke-test`}>Smoke test</TextLink>
-              </>
-            }
-          />
-
-          {/* docs/releases/v0.2.2.md "What changed", "Upgrading" and "Known limitations"; docs/threat-model.md section 9 */}
-          <FeatureCard
-            id="new-hardening"
-            icon={<Key className="size-5" />}
-            eyebrow={`Then ${site.hardeningVersion}`}
-            title="A hardening release: public servers, sign-in, registration"
-            wide
-            lead={
-              <p>
-                {site.hardeningVersion} was published on October 20, 2026. It adds two migrations, both expand-only, and two things to plan
-                for: OAuth apps sign in again about every 180 days, and a new default applies to servers you register from
-                now on. Read its <TextLink href={site.hardeningReleaseNotesUrl}>release notes</TextLink> before you upgrade.
-              </p>
-            }
-            bullets={[
-              <>
-                <Strong>Send identity token starts off for a public server with no sign-in.</Strong> Internal hosts and the
-                header and OAuth modes start on, existing servers are unchanged, and each call now records whether the token
-                was sent. Some public servers answer every tool call with an error when the token is sent.
-              </>,
-              <>
-                <Strong>Refresh tokens have a 180-day lifetime</Strong> from the person&apos;s last sign-in of the app (
-                <code>OAUTH_REFRESH_ABSOLUTE_TTL</code>, <code>0</code> for no limit). Connected apps shows when each sign-in
-                expires; API keys and service-account keys are not affected.
-              </>,
-              <>
-                <Strong>The sign-in flow looks at an app only after you sign in,</Strong> so an anonymous request can no
-                longer make the portal fetch a URL. A trusted client such as Claude Code shows a Continue or Cancel notice
-                the first time a person signs it in from their computer.
-              </>,
-              <>
-                <Strong>Controls for open client registration:</Strong> an admin switch to turn it off, registrations that
-                never received tokens deleted after 24 hours, and <code>OAUTH_MAX_UNUSED_CLIENTS_PER_ADDRESS</code> (default
-                20). The sign-in state cookie is <code>__Host-</code> prefixed on https, a missing{" "}
-                <code>TRUSTED_PROXIES</code> is reported in the log and by <code>doctor</code>, and the Dockerfile&apos;s base
-                images are pinned by digest.
-              </>,
-            ]}
-            note={
-              <>
-                Limits: after the first confirmation a local process can still use a trusted client&apos;s ID silently; a
-                server that refuses the token only when a tool runs still passes Test connection; the notice has not been
-                run with the real Claude Code client. Open in the{" "}
-                <TextLink href={site.threatModelUrl}>threat model</TextLink> at that release: per-provider allow-lists (done
-                in {site.version}), audit export, split database roles and idle sessions.
-              </>
-            }
-          />
-
-          {/* docs/releases/v0.3.0.md "What changed", "Upgrading", "Verification" and "Known limitations" */}
-          <FeatureCard
-            id="new-agents"
-            icon={<Shield className="size-5" />}
-            eyebrow={`Then ${site.agentVersion}`}
-            title="Agent-platform trust: an agent's call as the person's call"
-            wide
-            lead={
-              <p>
-                {site.agentVersion} was published on October 20, 2026, the same day as {site.hardeningVersion}. The portal can now
-                trust an external agent platform, the first being Pi Durable Platform, to say which person an agent is acting
-                for, and then treats the agent&apos;s calls as that person&apos;s, within strict limits. It adds one
-                migration, <code>00020</code>, which is expand-only, and stops reading the old sign-in cookie name, as{" "}
-                {site.hardeningVersion} announced. <Strong>Nothing changes until a platform admin adds a trusted platform and
-                marks a relay service account.</Strong> Read its{" "}
-                <TextLink href={site.agentReleaseNotesUrl}>release notes</TextLink> before you upgrade.
-              </p>
-            }
-            bullets={[
-              <>
-                <Strong>Trusted agent platforms and relay accounts.</Strong> A platform admin trusts a platform as an issuer
-                of short-lived signed identity tokens (its issuer, its keys address over https, the audience the portal
-                expects; ES256 only) and marks one team service account as its relay. A call on that account that carries
-                a valid token naming a person is that person&apos;s call: their access <em>intersected with</em> the
-                relay&apos;s (the lower role decides), their own delegated credentials, and their name in the call log with
-                the agent and the platform named. A token is single-use, and a person who is suspended or removed loses
-                access through agents on the next call.
-              </>,
-              <>
-                <Strong>Agents never get a consent link.</Strong> A relayed call that needs a connection the person hasn&apos;t
-                made returns a tool error that says where to connect. A person can allow a server from Account › My
-                connections, and a server or capability can require a present person, so work an agent does when nobody is
-                watching, such as scheduled work, is refused.
-              </>,
-              <>
-                <Strong>The server behind the gateway learns it was an agent.</Strong> The identity token carries an{" "}
-                <code>act</code> claim naming the agent on relayed person calls, and never otherwise.
-              </>,
-              <>
-                <Strong>What it does not do.</Strong> A token presented with any other credential is ignored and counted, a
-                bad token on a relay&apos;s request refuses the request, and a call that names no person stays the service
-                account&apos;s own. The new surfaces stay off until an admin configures them.
-              </>,
-              <>
-                <Strong>Checked</Strong> against 19 tokens and 5 key sets produced by Pi Durable Platform v0.4.0&apos;s own
-                signing code, and by an independent security review with no Critical or High findings, whose findings were
-                applied.
-              </>,
-            ]}
-            note={
-              <>
-                Limits: it has <Strong>not been run against a live Pi Durable Platform</Strong> (the manual check is in the
-                guide). A compromised platform signing key can speak as any person with a portal account, within the
-                relay&apos;s reach, using their delegated tokens. The token is bound to the platform-wide audience, not to a
-                relay or a gateway. A person removed at the identity provider stays reachable through agents until suspended in
-                the portal. A server with Send identity off receives the person&apos;s provider token and no{" "}
-                <code>act</code> claim. The relay control, the present-person switches and the Allow dialog were not looked at
-                in a browser.{" "}
-                <TextLink href={site.agentPlatformsUrl}>Administrator&apos;s guide</TextLink>
-              </>
-            }
-          />
-
-          {/* docs/releases/v0.3.1.md "What changed", "Upgrading", "Verification" and "Known limitations"; docs/phase5-delegated-credentials.md, docs/registry.md, docs/deploy.md */}
-          <FeatureCard
-            id="new-credentials"
-            icon={<Activity className="size-5" />}
-            eyebrow={`Then ${site.credentialsVersion}`}
-            title="Provider access lists, several credential parts, tracing"
-            wide
-            lead={
-              <p>
-                {site.credentialsVersion} was published on October 20, 2026, the same day as {site.agentVersion}. It adds three migrations
-                (<code>00021</code> to <code>00023</code>), all expand-only. <Strong>Nothing changes for existing providers or
-                servers until an admin opts in,</Strong> but existing auth providers stay open to every team, so read its{" "}
-                <TextLink href={site.credentialsReleaseNotesUrl}>release notes</TextLink> before you upgrade.
-              </p>
-            }
-            bullets={[
-              <>
-                <Strong>Who may use an auth provider.</Strong> A provider created from now on starts restricted: only servers
-                of the teams you list, or servers you name, may require it and receive people&apos;s tokens. Existing
-                providers stay open and show a warning. The list is checked when a requirement is saved, when a person allows
-                a server and on every call, including a call an agent relays. A provider can also be set to refresh with
-                only the scopes a call needs; only Microsoft is pre-filled, and a refused scope fails the call.{" "}
-                <TextLink href={site.providerAccessUrl}>Access lists and narrowing</TextLink>
-              </>,
-              <>
-                <Strong>A server&apos;s own credential as several parts.</Strong> Headers, a bearer token, Basic auth or a
-                query-string key, each sealed on its own and sent with every request. Another origin never keeps a stored
-                value, for any part. If a part sets <code>Authorization</code>, the identity token moves to{" "}
-                <code>{site.headers.identity}</code>. Servers with one header keep working unchanged.{" "}
-                <TextLink href={site.registryCredentialsUrl}>Credential parts</TextLink>
-              </>,
-              <>
-                <Strong>OpenTelemetry tracing, dashboards and alert rules.</Strong> Off unless an OTLP endpoint is set. One span
-                per <code>/mcp</code> request, with child spans for authentication, authorization, the provider credential and
-                the call to the server; span attributes come from a fixed allow-list, never tokens, content, emails or
-                argument values. Call records carry a trace id. Five Grafana dashboards and 14 Prometheus alert rules, with
-                unit tests and runbook entries (<code>make prom-check</code>).{" "}
-                <TextLink href={site.tracingUrl}>Tracing</TextLink>
-              </>,
-            ]}
-            note={
-              <>
-                Limits: a query-string credential travels in the URL, so servers, proxies and their logs may record it; prefer
-                a header. Narrowing is only as good as the provider&apos;s support: where a provider ignores{" "}
-                <code>scope</code> on refresh, the token keeps every scope. Exemplars are not built. If untrusted clients can
-                reach the portal, use <code>traceidratio</code> sampling, because the default lets a client ask for a trace.
-                Not run against a real provider (including Microsoft&apos;s refresh with a scope), a real third-party server
-                that wants Basic or a query key, or a real OpenTelemetry collector or Tempo, and the dashboards&apos; queries
-                were not checked against live data.
-              </>
-            }
-          />
-
-          {/* docs/releases/v0.3.2.md "What changed", "Upgrading", "Verification" and "Known limitations"; docs/person-secrets.md, docs/machine-oauth.md, docs/registry.md */}
-          <FeatureCard
-            id="new-upstream-auth"
-            icon={<Key className="size-5" />}
-            eyebrow={`Then ${site.version}`}
-            title="Each person's own key, the portal's own OAuth client, mTLS with a private CA"
-            wide
-            lead={
-              <p>
-                {site.version} was published on October 20, 2026, the same day as {site.credentialsVersion}. It adds three
-                migrations (<code>00024</code> to <code>00026</code>), all expand-only. <Strong>Nothing changes for existing
-                servers;</Strong> each feature is something a team opts into on a server. Read its{" "}
-                <TextLink href={site.releaseNotesUrl}>release notes</TextLink> before you upgrade.
-              </p>
-            }
-            bullets={[
-              <>
-                <Strong>Each person&apos;s own key.</Strong> Every person pastes their own API key or token for a server once.
-                It is sealed per person and server, shown only as a hint, revocable, and sent as a header, a bearer token or
-                a query-string key. A new origin, or a change of where the key goes, deletes everyone&apos;s keys. An agent&apos;s
-                call uses a key only if that person allowed agents (off by default). Scheduled health checks send no key.{" "}
-                <TextLink href={site.personSecretsUrl}>Person keys</TextLink>
-              </>,
-              <>
-                <Strong>The portal&apos;s own OAuth client.</Strong> For a server that authenticates the portal itself, the
-                portal gets a token with the client-credentials grant and sends it as the bearer. Everyone who calls the
-                server shares that token, service accounts and agent calls included; the identity token moves to{" "}
-                <code>{site.headers.identity}</code>. The client secret is sealed and never shown.{" "}
-                <TextLink href={site.machineOAuthUrl}>Machine OAuth</TextLink>
-              </>,
-              <>
-                <Strong>mTLS and a private CA.</Strong> A server can present a client certificate and trust a private CA
-                instead of the system roots, for that server only. Host name verification is always on, with no way to skip
-                it, and TLS 1.2 is the minimum. Expiry shows on the server&apos;s health, the admin overview and as a{" "}
-                <code>key.expiring</code> notification.{" "}
-                <TextLink href={site.upstreamTlsUrl}>TLS to the server</TextLink>
-              </>,
-            ]}
-            note={
-              <>
-                Limits: a person&apos;s key is as safe as the server that receives it, and a query-string key is visible in
-                URLs. Client certificates are not used for sign-in metadata or token endpoints, so a server in OAuth mode
-                behind a private CA can&apos;t be set up yet; CRL and OCSP are not checked. Not run against a real
-                authorization server (Entra ID, Okta, Keycloak or Auth0), a real server that wants a per-person key or a
-                client certificate, or a real internal server behind a private CA; the person-key pages, the TLS card and
-                the expiry warnings were not looked at in a browser.
-              </>
-            }
-          />
+        <div className="mt-12 space-y-12">
+          {shippedThemes.map((theme) => (
+            <div key={theme.id} role="group" aria-labelledby={theme.id}>
+              <h3 id={theme.id} className="text-xl font-semibold tracking-tight text-brand-text sm:text-2xl">
+                {theme.title}
+              </h3>
+              <p className="mt-2 max-w-2xl text-brand-muted">{theme.lead}</p>
+              <ul className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {theme.items.map((item) => (
+                  <ShippedCard key={item.title} item={item} />
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
       </div>
     </section>
@@ -1089,18 +1079,24 @@ function Connect() {
             <CodeBlock label="Scripts and agents: a personal or service account key">{keySnippet}</CodeBlock>
             <p className="mt-3 text-sm text-brand-muted">
               Personal keys start with <code>omp_</code>, service account keys with <code>omp_sa_</code>. Both are
-              shown once. <TextLink href={site.connectUrl}>Connecting clients</TextLink>
+              shown once, and both can be limited to a tool scope, such as read only.{" "}
+              <TextLink href={site.connectUrl}>Connecting clients</TextLink>
             </p>
           </div>
         </div>
+        <p className="mt-6 max-w-3xl text-sm text-brand-muted">
+          The <code>omp</code> CLI prints the same snippets: <code>omp connect support --client claude</code> (or{" "}
+          <code>vscode</code>, <code>cursor</code>, <code>curl</code>). <TextLink href={docs("api/cli")}>The omp CLI</TextLink>
+        </p>
         <div className="mt-10 max-w-3xl">
           <div className="min-w-0">
             <h3 className="text-lg font-semibold text-brand-text">What a connected app can do</h3>
             <CheckList
               items={[
-                <>It acts as you, on that gateway only: its token is refused by every other gateway.</>,
+                <>It acts as you, on that gateway only and within the tool scope you allowed: its token is refused by every other gateway.</>,
                 <>It sees the tools you may use there now. Lose access and the next request is refused.</>,
-                <>Access tokens last an hour; the app refreshes them, and signs in again after 30 days unused. A refresh token reused after 30 seconds ends the connection.</>,
+                <>A call that a rule holds for approval answers with a link to the request. Once someone approves it, repeat the same call.</>,
+                <>Access tokens last an hour; the app refreshes them, and signs in again after 30 days unused and at least every 180 days. A refresh token reused after 30 seconds ends the connection.</>,
                 <>Claude (claude.ai and Claude Desktop) connects as a custom connector; for claude.ai the portal must be reachable from the internet.</>,
               ]}
             />
@@ -1134,7 +1130,7 @@ export async function identity(headers: Headers) {
     audience: MY_URL,
     clockTolerance: 30,
   });
-  return payload; // principal_type, sub, email, teams, tool
+  return payload; // principal_type, sub, email, teams, tool, tool_class
 }`;
 
 const claims: { name: string; what: string }[] = [
@@ -1144,6 +1140,7 @@ const claims: { name: string; what: string }[] = [
   { name: "teams", what: "Slugs of the caller's teams" },
   { name: "gateway", what: "The gateway's slug" },
   { name: "tool, prompt, resource", what: "What was called, exactly one of them" },
+  { name: "tool_class", what: "read, write or destructive, where the team classified the tool" },
   { name: "client", what: "The MCP client, with client_verified for OAuth apps" },
   { name: "provider", what: "Set when a provider token comes with the call" },
 ];
@@ -1192,8 +1189,9 @@ function ServerAuthors() {
                 <>
                   <Strong>Provider tokens:</Strong> when a tool needs the person&apos;s account on another service, the
                   call also brings <code>{site.headers.provider}</code> (the provider, such as <code>github</code>) and{" "}
-                  <code>{site.headers.providerToken}</code> (their access token, refreshed by the portal). Accept it only
-                  when the identity token&apos;s <code>provider</code> claim matches, and never log or store it.
+                  <code>{site.headers.providerToken}</code> (their access token, refreshed by the portal; for a service
+                  account, its team&apos;s shared account). Accept it only when the identity token&apos;s{" "}
+                  <code>provider</code> claim matches, and never log or store it.
                 </>,
                 <>
                   <Strong>OAuth servers work as they are:</Strong> if your server is itself an OAuth resource server, the
@@ -1208,7 +1206,14 @@ function ServerAuthors() {
                 </>,
                 <>
                   <Strong>Calls only:</Strong> lists are served from the approved definitions, so your server sees tool
-                  calls, prompt gets and resource reads, plus discovery and health checks.
+                  calls, prompt gets and resource reads, plus discovery and health checks. A gateway may rename your
+                  tool or fix an argument; your server always gets the original name.
+                </>,
+                <>
+                  <Strong>Repeats and replicas:</Strong> a tool its team classified read may be called up to three times
+                  in one call, within your timeout, and a team can add up to two endpoints the portal fails over to. Each
+                  endpoint gets a token whose audience is its own URL.{" "}
+                  <TextLink href={docs("teams/protection-and-failover")}>Protection and failover</TextLink>
                 </>,
               ]}
             />
@@ -1235,11 +1240,11 @@ function ServerAuthors() {
 const gallery: SlotName[] = [
   "my-gateways",
   "catalog",
-  "server-sign-in",
   "gateway-capabilities",
   "oauth-consent",
   "connect-confirm",
-  "admin-usage",
+  "approval-review",
+  "server-governance",
   "call-detail",
 ];
 
@@ -1249,8 +1254,9 @@ function Screenshots() {
       <div className="container-page">
         <SectionHeading id="screenshots-title" eyebrow="The web UI" title="One portal for people, teams and administrators">
           <p>
-            Everyone signed in sees the catalog and their gateways. Teams manage their servers, gateways, service
-            accounts and usage. Platform admins review, grant and configure; auditors see the same pages, read-only.
+            Everyone signed in sees the catalog, their gateways and the approvals they can decide. Teams manage their
+            servers, gateways, service accounts, approval rules and usage. Platform admins review, grant and configure;
+            auditors see the same pages, read-only.
           </p>
         </SectionHeading>
         <div className="mt-12 grid gap-x-8 gap-y-12 md:grid-cols-2">
@@ -1280,16 +1286,21 @@ cosign verify ${site.image} \\
   --certificate-identity ${site.imageCertificateIdentity} \\
   --certificate-oidc-issuer ${site.imageOidcIssuer}`;
 
-// docs/deploy.md "Kubernetes › Secrets".
+// docs/deploy.md "Kubernetes › Secrets" and "Database roles": the runtime and migration Secrets.
 const k8sSecrets = `kubectl create namespace open-mcp-portal
 kubectl -n open-mcp-portal create secret generic open-mcp-portal-runtime \\
-  --from-literal=DATABASE_URL='postgres://omp:<password>@db.example.com:5432/omp?sslmode=require' \\
+  --from-literal=DATABASE_URL='postgres://omp_app:<password>@db.example.com:5432/omp?sslmode=require' \\
   --from-literal=ENCRYPTION_KEY="$(openssl rand -base64 32)" \\
   --from-literal=API_KEY_PEPPER="$(openssl rand -base64 32)" \\
-  --from-literal=OIDC_CLIENT_SECRET='<from your IdP>'`;
+  --from-literal=OIDC_CLIENT_SECRET='<from your IdP>'
+
+# Migrations run as the schema owner, in the init container only
+kubectl -n open-mcp-portal create secret generic open-mcp-portal-migrate \\
+  --from-literal=DATABASE_MIGRATE_URL='postgres://omp_owner:<password>@db.example.com:5432/omp?sslmode=require'`;
 
 const requirements = [
   "PostgreSQL: the only dependency. No cache, queue, worker or object storage",
+  "Two database logins for production: a schema owner that runs migrations, and a runtime role that can't rewrite the audit log or call records",
   "An OpenID Connect identity provider for sign-in, optionally with a groups claim for SSO group grants",
   "TLS in front of the portal, on the host in APP_URL",
   "Two 32-byte secrets: ENCRYPTION_KEY and API_KEY_PEPPER, kept with your backups",
@@ -1333,7 +1344,7 @@ function SelfHost() {
               address. Never expose it.
             </Note>
             <CodeBlock label={`Pull and verify the published ${site.version} image (tag ${site.version})`}>{pullImage}</CodeBlock>
-            <CodeBlock label="Kubernetes: the runtime secret the Kustomize base expects">{k8sSecrets}</CodeBlock>
+            <CodeBlock label="Kubernetes: the runtime and migration secrets the Kustomize base expects">{k8sSecrets}</CodeBlock>
           </div>
           <div className="self-start rounded-card border border-brand-border bg-brand-surface p-6 sm:p-8">
             <h3 className="text-lg font-semibold text-brand-text">What you need</h3>
@@ -1354,8 +1365,15 @@ function SelfHost() {
             </p>
             <Note>
               The image <code>{site.imageTag}</code> is published and signed with cosign (v3.0 or newer verifies it);
-              pin it by digest in your overlay. There is no Helm chart.
+              pin it by digest in your overlay. There is no Helm chart.{" "}
+              <TextLink href={site.databaseRolesUrl}>Database roles</TextLink>
             </Note>
+            <h3 className="mt-8 text-lg font-semibold text-brand-text">The omp CLI</h3>
+            <p className="mt-2 text-sm text-brand-muted">
+              Every release also carries <code>omp</code> for Linux, macOS and Windows on amd64 and arm64, each with a
+              cosign bundle and listed in <code>checksums.txt</code>. It authenticates with automation tokens only. A
+              GitHub Action built on it is in the repository.
+            </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <ButtonLink href={site.docsUrl}>
                 Self-hosting docs
@@ -1426,48 +1444,44 @@ function OpenSource() {
             </h3>
             <div className="mt-4 space-y-3 leading-relaxed text-brand-muted">
               <p>
-                Everything on this page is built and tested against real PostgreSQL. Real clients worked with
-                v0.1.0, on the earlier protocol revisions: Claude Code and pi signed in to gateways over OAuth and called tools, and GitHub&apos;s
-                hosted MCP server has run end to end with each person&apos;s own GitHub sign-in.
+                Everything on this page is built and tested against real PostgreSQL, with browser checks of the new pages.
+                {" "}{site.version} was published on November 1, 2026. It is pre-1.0 software: v1.0.0 has not been cut, and
+                the portal hasn&apos;t run in production with a real team. Development is paused after this release.
               </p>
               <p>
-                {site.previousVersion} and {site.patchVersion} were both published on October 18, 2026, the day after v0.1.0,
-                and {site.hardeningVersion}, {site.agentVersion}, {site.credentialsVersion} and {site.version} on October 20. It is pre-1.0 software and hasn&apos;t run in production. Claude Code
-                2.1.280 has been run on the 2026-07-28 revision, with an API key and with its OAuth sign-in (discovery,
-                lists, tool calls and the consent link), and {site.version} runs on one real cluster (a CloudNativePG
-                database with continuous archiving and a tested restore). The Kubernetes manifests also pass a smoke test on
-                a kind cluster. Not verified yet: a run against a live Pi Durable Platform (the agent-platform trust was checked
-                against tokens from its real signing code and a fake issuer, not its gateway and runtime end to end), the one-time notice for a trusted client with the real Claude Code client
-                (an integration test covers the whole flow), a client that declares URL elicitation, VS Code and Cursor, a
-                real Google or Microsoft provider for delegated credentials (only GitHub has run end to end), email over
-                TLS to a real mail provider, and a real Slack webhook. Also not run: {site.credentialsVersion}&apos;s narrower tokens against a real provider
-                (including Microsoft&apos;s refresh with a scope), a real third-party server that wants Basic or a query key, and a real
-                OpenTelemetry collector or Tempo (a fake receiver stood in; the dashboards&apos; queries were not checked against live
-                data). Also not run for {site.version}: a real authorization server (Entra ID, Okta, Keycloak or Auth0) for the portal&apos;s own OAuth client, a real
-                server that wants a per-person key or a client certificate, and a real internal server behind a private CA (tests used
-                throwaway CAs and test servers; the person-key pages, the TLS card and the expiry warnings were not looked at in a browser).
-                Pilot it before you depend on it.
+                Proven on one real deployment (a Kubernetes cluster with OIDC sign-in and a CloudNativePG database with
+                continuous archiving and a tested restore): Claude Code over OAuth and with an API key on the 2026-07-28
+                revision, each person&apos;s own GitHub sign-in to GitHub&apos;s hosted MCP server, and a public MCP server
+                through a gateway. Claude Code and pi signed in and called tools on the earlier revisions. Each release also
+                passes Kubernetes gates on kind: an upgrade from the previous release, ingress with TLS, OIDC sign-in, a
+                restore and a load test.
               </p>
               <p>
-                Limits: remote servers only (no stdio); streaming covers the progress of a tool call, with no
-                server-pushed list changes or resource subscriptions; no sampling or roots relay; notifications are sent
-                by one loop on one replica at a time; a server that rejects the identity token only when a tool runs
-                passes Test connection; after its first confirmation a local process can still use a trusted client&apos;s ID
-                silently; a compromised agent-platform signing key can speak as any person with a portal account, within the
-                relay&apos;s reach, and the platform&apos;s token is bound to a platform-wide audience, not to a relay or a
-                gateway; a person removed at the identity provider stays reachable through agents until suspended in the
-                portal; a server with Send identity off can&apos;t tell an agent&apos;s call from the person&apos;s; the smoke test doesn&apos;t cover ingress and TLS, OIDC, upgrades or restores;
-                a query-string credential travels in the URL, so servers, proxies and their logs may record it; narrowing a token is only as good as the provider&apos;s
-                support for a scope on refresh, and exemplars are not built; providers that existed before {site.credentialsVersion} stay open to every team until an admin restricts them;
-                a person&apos;s key is as safe as the server that receives it, and a query-string key is visible in URLs; everyone who calls a server that uses the portal&apos;s own OAuth client shares its token;
-                client certificates are not used for sign-in metadata or token endpoints (a server in OAuth mode behind a private CA can&apos;t be set up yet, and CRL and OCSP are not checked);
-                a team&apos;s static credential echoed back by its own server reaches the caller in the tool result;
-                audit export, split database roles and idle sessions are still open in the threat model.
-                Next on the{" "}
-                <TextLink href={site.roadmapUrl}>roadmap</TextLink> (an order of work, not a schedule; every item is a
-                GitHub issue with its implementation plan): a pilot with a real team, real-client checks and a run against a
-                live Pi Durable Platform first, then team service connections for service accounts, tool classification and
-                scopes on credentials, and approval before sensitive calls.
+                Still open as real-world verification issues: an independent security review, VS Code and Cursor, a client
+                that declares URL elicitation, real clients refreshing their tokens after an hour, real Google and Microsoft
+                Entra ID providers, a real Slack webhook and email over TLS to a real provider, and a pilot with a real team.
+                Most features since v0.3.3 were tested with fake MCP servers and providers; no real client has used tool
+                scopes, approval links or the Tasks extension yet. Pilot it before you depend on it.
+              </p>
+              <p>
+                Limits (the <TextLink href={site.threatModelUrl}>threat model</TextLink> has the full list): remote
+                servers only (no stdio); no server-pushed list changes or resource subscriptions; no sampling
+                or roots relay; tasks only for tool calls that need no approval and don&apos;t stream; a tool&apos;s class is
+                its team&apos;s assertion, not proof of what it does; failover only for servers with no sign-in or a static
+                credential; notifications are sent by one loop on one replica at a time; a server that rejects the identity
+                token only when a tool runs passes Test connection; after its first confirmation a local process can still
+                use a trusted client&apos;s ID silently; a query-string credential travels in the URL, so servers, proxies
+                and their logs may record it; narrowing a provider token is only as good as the provider&apos;s support for a
+                scope on refresh; everyone who calls a server that uses the portal&apos;s own OAuth client shares its token;
+                a server in OAuth mode can&apos;t use a private CA yet, and CRL and OCSP are not checked; split database
+                roles are opt-in, and the audit log can&apos;t yet be streamed off the host.
+              </p>
+              <p>
+                Planned on the <TextLink href={site.roadmapUrl}>roadmap</TextLink> (an order of work, not a schedule;
+                every item is a GitHub issue with its implementation plan), after the real-world checks and the pilot:
+                streaming the audit log to a SIEM, legal holds and per-person export and erasure, a Helm chart,
+                list-changed subscriptions, a console to try a tool, more of the catalog (categories, icons, a README per
+                server), a tool-search mode for large gateways, and usage export for chargeback.
               </p>
             </div>
             <p className="mt-6 text-brand-muted">

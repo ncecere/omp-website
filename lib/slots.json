@@ -1,38 +1,37 @@
 {
   "my-gateways": {
-    "alt": "My gateways in Open MCP Portal for Sam Ortiz: Company tools and Engineering tools (platform gateways) and Support (his team's gateway), why he has access (granted to his team, to his SSO group engineering, member of Support Tools), how many capabilities each offers, and Engineering tools marked \"Records what you send\".",
+    "alt": "My gateways in Open MCP Portal for Sam Ortiz: Company tools and Engineering tools (platform gateways) and Support (his team's gateway), why he has access (granted to his team, to his SSO group engineering, member of Support Tools), what each offers him, and Engineering tools marked \"Records what you send\", with Request gateway access and API keys at the top.",
     "caption": "Every gateway has one URL. Interactive clients sign in in the browser; scripts and clients that can't sign in use an API key."
   },
   "catalog": {
-    "alt": "Catalog: the published MCP servers of Example Corp's teams (Code search from Data Platform, Mail and Status from Support Tools), each with its team, description, the approved capabilities it offers and its health, and Code search marked \"Sign-in per person\".",
+    "alt": "Catalog: the published MCP servers of Example Corp's teams, such as Code search from Data Platform and Mail and Status from Support Tools, each with its team, description, the approved capabilities it offers and its health, Code search marked \"Sign-in per person\", and a search box for a server, team or approved capability.",
     "caption": "The catalog lists only published servers, and only the capabilities whose current definition was approved."
-  },
-  "server-sign-in": {
-    "file": "add-server-detect",
-    "alt": "Add MCP server after Detect sign-in against SourceHub's hosted MCP server: \"OAuth: each person signs in\", the authorization server on another host, S256 supported, the scopes supported and automatic registration, with \"Sign-in with OAuth, per person\" selected and the scopes to ask for.",
-    "caption": "Detect sign-in reads an OAuth-protected server's metadata, such as GitHub's hosted MCP server, and shows what is still needed."
   },
   "gateway-capabilities": {
     "file": "gateway-capabilities-picker",
-    "alt": "A team gateway's Choose capabilities picker: search, server and kind filters, the catalog server Code search (each tool needs a sign-in to it) and the team's own servers Mail (needs Google) and Status, with the selected capabilities and who may use each.",
-    "caption": "A gateway exposes only what was selected for it, named server__tool so tools from different servers never clash."
+    "alt": "A team gateway's Choose capabilities picker: search, server and kind filters and \"8 of at most 200 selected\", a Curate button for each selected tool, the catalog server Code search (each tool needs a sign-in to it, none selected) and the team's own server Mail (3 of 3 selected, each needing Google), with who may use each.",
+    "caption": "A gateway exposes only what was selected for it, named server__tool unless renamed for this gateway, so tools from different servers never clash."
   },
   "oauth-consent": {
-    "alt": "The consent page: pi wants to use the Support gateway as Sam, marked Unverified because it registered itself, with where the browser goes back to, the gateway's name, owner and what it offers, what the app will be able to do, and Deny and Allow.",
-    "caption": "Consent is remembered per person, app and gateway. Apps your platform admins trust skip this page; people still sign in."
+    "alt": "The consent page: pi wants to use the Support gateway as Sam, marked Unverified because it registered itself, with a warning naming where the answer goes, the gateway's name, owner and what it offers, what the app will be able to do, and the tool scope it asks for (Everything), which Sam may narrow to Read only or Custom.",
+    "caption": "Consent is remembered per person, app and gateway, and a person can narrow the tool scope an app asks for. Apps your platform admins trust skip this page; people still sign in."
   },
   "connect-confirm": {
     "file": "connect-confirm-more-scopes",
-    "alt": "Connect your Google account: the request (signed in as, the tool that asked, the gateway, the server and its team, the provider, the account connected now), each scope Google will ask for (gmail.readonly marked Already granted and gmail.compose New) and a note that the portal sends the token only to servers the person allows, with Cancel and Continue to Google.",
+    "alt": "Connect your Google account: the tool mail__create_draft needs more access than allowed before; the request (signed in as, the tool that asked, the gateway, the server and its team, the provider, the account connected now), each scope Google will ask for (gmail.readonly marked Already granted and gmail.compose New) and a note that the portal sends the token only to servers the person allows, with Cancel and Continue to Google.",
     "caption": "A tool that needs a person's own account answers with a one-time link to this page. The token stays in the portal; the AI client never sees it."
   },
-  "admin-usage": {
-    "alt": "Admin › Usage over the last 30 days, grouped by team: totals (calls, error rate, p50 and p95 latency, bytes sent and received), calls per day by outcome, and latency.",
-    "caption": "Usage is rolled up hourly and kept for ranges of up to 90 days. There is no grouping by person."
+  "approval-review": {
+    "alt": "An approval request as Priya Shah sees it, scrolled past its receipt (requested, pending expiry, no decision yet) to the redacted preview of the call's arguments (a ticket about a printer on floor 3 that shows offline) and the Actions card with Approve exact call, Deny and Reload receipt.",
+    "caption": "A rule can hold a sensitive call until someone approves that exact call. The approval is used once; the caller never approves their own."
+  },
+  "server-governance": {
+    "alt": "The Status server's Overview in Support Tools, at the Governance card: owner Priya Shah, on call #support-tools-oncall, sensitivity Internal, the next and last review dates and the lifecycle, Active, with the Company catalog card below (Published, Approval required).",
+    "caption": "Every server can name who answers for it and how sensitive it is. A gateway whose sensitivity ceiling is lower doesn't serve it."
   },
   "call-detail": {
     "file": "call-detail-payload",
-    "alt": "A call's recorded contents: recorded by the gateway, when it's deleted, two values redacted, the arguments of a ticket search, and the result, where an employee number and a pasted bearer token show as [REDACTED].",
+    "alt": "A call's recorded contents: the arguments of a ticket search and its result, marked \"2 values redacted\", where the employee who escalated the ticket and the Authorization header a customer pasted both show as [REDACTED].",
     "caption": "Call metadata is always kept. Arguments and results only where a team turned recording on: redacted, and every view audited."
   }
 }

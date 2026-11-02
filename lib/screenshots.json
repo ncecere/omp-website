@@ -9,11 +9,6 @@
     "width": 1440,
     "height": 900
   },
-  "server-sign-in": {
-    "src": "/images/server-sign-in.webp",
-    "width": 1440,
-    "height": 900
-  },
   "gateway-capabilities": {
     "src": "/images/gateway-capabilities.webp",
     "width": 1440,
@@ -29,8 +24,13 @@
     "width": 1440,
     "height": 900
   },
-  "admin-usage": {
-    "src": "/images/admin-usage.webp",
+  "approval-review": {
+    "src": "/images/approval-review.webp",
+    "width": 1440,
+    "height": 900
+  },
+  "server-governance": {
+    "src": "/images/server-governance.webp",
     "width": 1440,
     "height": 900
   },

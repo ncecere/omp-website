@@ -1,7 +1,8 @@
 const repoUrl = "https://github.com/ncecere/open-mcp-portal";
 // Links into the repository are pinned at the release tag, so they keep
 // showing the files of the version this page describes.
-const tree = `${repoUrl}/blob/v0.3.2`;
+const tree = `${repoUrl}/blob/v0.13.1`;
+const docsUrl = "https://docs.omp.bitop.dev";
 
 export const site = {
   name: "Open MCP Portal",
@@ -11,46 +12,32 @@ export const site = {
   url: "https://omp.bitop.dev",
   title: "Open MCP Portal: one governed place for your company's MCP servers",
   description:
-    "Open MCP Portal (OMP) is a self-hosted, open-source portal where teams register the MCP servers they build, publish them to a company catalog, and give people and agents governed access through curated gateways, with sign-in, signed identity, delegated credentials and audit.",
-  docsUrl: "https://docs.omp.bitop.dev",
+    "Open MCP Portal (OMP) is a self-hosted, open-source portal where teams register the MCP servers they build, publish them to a company catalog, and give people and agents governed access through curated gateways, with sign-in, tool scopes, approval of sensitive calls, signed identity, delegated credentials and audit.",
+  docsUrl,
   repoUrl,
-  version: "v0.3.2",
-  // The releases before it: the "New in v0.2.0" section describes
-  // `previousVersion`, its small follow-up card describes `patchVersion`, and
-  // the hardening card after it describes `hardeningVersion`, and the
-  // agent-platform card after that describes `agentVersion`, and the
-  // credentials-and-operations card after that describes `credentialsVersion`;
-  // each links its own notes. `version` has its own card after them.
-  previousVersion: "v0.2.0",
-  previousReleaseNotesUrl: `${repoUrl}/releases/tag/v0.2.0`,
-  patchVersion: "v0.2.1",
-  patchReleaseNotesUrl: `${repoUrl}/releases/tag/v0.2.1`,
-  hardeningVersion: "v0.2.2",
-  hardeningReleaseNotesUrl: `${repoUrl}/releases/tag/v0.2.2`,
-  agentVersion: "v0.3.0",
-  agentReleaseNotesUrl: `${repoUrl}/releases/tag/v0.3.0`,
-  credentialsVersion: "v0.3.1",
-  credentialsReleaseNotesUrl: `${repoUrl}/releases/tag/v0.3.1`,
+  version: "v0.13.1",
   // The release day of `version` (the footer and the sitemap show it).
-  releaseDate: "2026-10-20" as string | null,
-  releaseNotesUrl: `${repoUrl}/releases/tag/v0.3.2`,
+  releaseDate: "2026-11-01" as string | null,
+  releaseNotesUrl: `${repoUrl}/releases/tag/v0.13.1`,
+  // The release the "Since v0.3" section counts from (the one this page described before).
+  sinceVersion: "v0.3.2",
   // The published, cosign-signed container image of `version`, by digest
-  // (the tag is v0.3.2). Verify with cosign v3.0 or newer, certificate
+  // (the tag is v0.13.1). Verify with cosign v3.0 or newer, certificate
   // identity `imageCertificateIdentity`, OIDC issuer `imageOidcIssuer`.
-  image: "ghcr.io/ncecere/open-mcp-portal@sha256:80ee9a1c7203ac8813597a1a218902503d08378982e08b62ba48c4084add5bd6",
-  imageTag: "ghcr.io/ncecere/open-mcp-portal:v0.3.2",
-  imageCertificateIdentity: `${repoUrl}/.github/workflows/image.yml@refs/tags/v0.3.2`,
+  image: "ghcr.io/ncecere/open-mcp-portal@sha256:cec6a9e1189845ca2f9827e972c55af20ce22de3a40645abdf3ab08a6730a453",
+  imageTag: "ghcr.io/ncecere/open-mcp-portal:v0.13.1",
+  imageCertificateIdentity: `${repoUrl}/.github/workflows/image.yml@refs/tags/v0.13.1`,
   imageOidcIssuer: "https://token.actions.githubusercontent.com",
   releasesUrl: `${repoUrl}/releases`,
   licenseUrl: `${tree}/LICENSE`,
   securityUrl: `${repoUrl}/security`,
   // Where people ask questions and report how their MCP client works.
   discussionsUrl: `${repoUrl}/discussions`,
-  clientCompatibilityUrl: "https://docs.omp.bitop.dev/docs/use/client-compatibility",
+  clientCompatibilityUrl: `${docsUrl}/docs/use/client-compatibility`,
   statusUrl: `${tree}/docs/status.md`,
   deployUrl: `${tree}/docs/deploy.md`,
   // The roadmap changes between releases, so it is not pinned at the tag: the docs site's page, which links every item's issue.
-  roadmapUrl: "https://docs.omp.bitop.dev/docs/releases/roadmap",
+  roadmapUrl: `${docsUrl}/docs/releases/roadmap`,
   threatModelUrl: `${tree}/docs/threat-model.md`,
   mcpProtocolUrl: `${tree}/docs/mcp-protocol.md`,
   adminOverviewUrl: `${tree}/docs/admin-overview.md`,
@@ -58,13 +45,8 @@ export const site = {
   automationTokensUrl: `${tree}/docs/automation-tokens.md`,
   connectUrl: `${tree}/docs/connect-clients.md`,
   identityUrl: `${tree}/docs/upstream-identity.md`,
-  agentPlatformsUrl: `${tree}/docs/agent-platforms.md`,
-  providerAccessUrl: `${tree}/docs/phase5-delegated-credentials.md#who-may-use-a-provider-and-narrower-tokens-decision-69-v031-h-5`,
-  registryCredentialsUrl: `${tree}/docs/registry.md#a-servers-own-credential-parts`,
   tracingUrl: `${tree}/docs/deploy.md#tracing`,
-  personSecretsUrl: `${tree}/docs/person-secrets.md`,
-  machineOAuthUrl: `${tree}/docs/machine-oauth.md`,
-  upstreamTlsUrl: `${tree}/docs/registry.md#tls-to-the-server`,
+  databaseRolesUrl: `${tree}/docs/deploy.md#database-roles`,
   mailExampleUrl: `${tree}/examples/mail-mcp/README.md`,
   websiteRepoUrl: "https://github.com/ncecere/omp-website",
   // The example portal used in every snippet on the page: the host the screenshots show
@@ -79,3 +61,8 @@ export const site = {
     providerToken: "MCP-Gateway-Provider-Token",
   },
 } as const;
+
+/** A page on the docs site, e.g. docs("use/approvals") or docs("teams/publishing#the-catalog"). */
+export function docs(path: string): string {
+  return `${docsUrl}/docs/${path}`;
+}

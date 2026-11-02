@@ -13,8 +13,8 @@
 //   npm run brand -- --check   exit 1 if app/brand.css is not what the sources give
 //
 // PRODUCT_DIR names the product repository; by default the first of
-// ../golang/open-mcp-portal and ../golang/open-mcp-gateway (its name before
-// the rename) next to this repository. CI never runs this: the result is
+// ../open-mcp-portal, ../open-mcp-gateway (its name before the rename),
+// ../golang/open-mcp-portal and ../golang/open-mcp-gateway next to this repository. CI never runs this: the result is
 // committed.
 //
 // Rules (keep them in sync with the README):
@@ -36,7 +36,7 @@ import { fileURLToPath } from "node:url";
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const candidates = process.env.PRODUCT_DIR
   ? [resolve(process.env.PRODUCT_DIR)]
-  : ["open-mcp-portal", "open-mcp-gateway"].map((name) => join(root, "..", "golang", name));
+  : ["..", join("..", "golang")].flatMap((dir) => ["open-mcp-portal", "open-mcp-gateway"].map((name) => join(root, dir, name)));
 const product = candidates.find((dir) => existsSync(join(dir, "web", "src", "components", "ui", "themes", "neutral.css")));
 if (!product) {
   console.error(`No product repository with web/src/components/ui/themes/neutral.css in: ${candidates.join(", ")}`);
