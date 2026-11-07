@@ -1,6 +1,6 @@
 # Build the static export once on the build platform (the output is the same
 # for every architecture), then copy it into a multi-arch nginx image.
-FROM --platform=$BUILDPLATFORM docker.io/library/node:26.11.1-alpine@sha256:143494b1da2945f061539253adc65e4f1569ddf07da2d384c022c791a9d90a4a AS build
+FROM --platform=$BUILDPLATFORM docker.io/library/node:26.12.1-alpine@sha256:40cd011b55415bc894e45b02fdd5a5dfde056921b7d23a64c74f80497af48797 AS build
 WORKDIR /src
 ENV NEXT_TELEMETRY_DISABLED=1
 COPY package.json package-lock.json ./
@@ -8,7 +8,7 @@ RUN npm ci --no-audit --no-fund
 COPY . .
 RUN npm run build
 
-FROM docker.io/library/nginx:1.31.0-alpine@sha256:2f07d83bf561b506400dc183b1b2003803e39efbd22451f848adaba14d28c7c7
+FROM docker.io/library/nginx:1.31.7-alpine@sha256:892bb2152464f0c5d8972593a5f5afaf8054552580b699d95f8ff4af08c2d33d
 
 LABEL org.opencontainers.image.source="https://github.com/ncecere/omp-website" \
       org.opencontainers.image.description="The Open MCP Portal website (omp.bitop.dev)" \
